@@ -1,0 +1,19 @@
+{
+  "name": "request-trace-marketplace",
+  "owner": {
+    "name": "IbrahimDekkush",
+    "url": "https://github.com/JashIbra"
+  },
+  "plugins": [
+    {
+      "name": "request-trace",
+      "source": "./plugins/request-trace",
+      "description": "Numbered walk of one user action through the code, with the mechanics of each call spelled out — a review aid.",
+      "version": "1.0.0"
+    }
+  ],
+  "metadata": {
+    "description": "Skills for reading unfamiliar code before you review it.",
+    "version": "1.0.0"
+  }
+}

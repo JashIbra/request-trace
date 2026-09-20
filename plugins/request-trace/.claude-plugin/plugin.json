@@ -1,0 +1,17 @@
+{
+  "name": "request-trace",
+  "description": "Numbered walk of one user action through the code, with the mechanics of each call spelled out — a review aid.",
+  "version": "1.0.0",
+  "author": {
+    "name": "IbrahimDekkush",
+    "url": "https://github.com/JashIbra"
+  },
+  "homepage": "https://github.com/JashIbra/request-trace",
+  "keywords": [
+    "code-review",
+    "onboarding",
+    "documentation",
+    "call-graph",
+    "walkthrough"
+  ]
+}
