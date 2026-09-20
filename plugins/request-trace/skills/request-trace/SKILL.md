@@ -31,7 +31,7 @@ the surrounding prose is.
 
 The subject is one human action, followed through to the end. Take it in this order:
 
-1. **Named in the request** — "creating a global repetition", "sending a chat message". Use that.
+1. **Named in the request** — "scheduling a post", "sending a chat message". Use that.
 2. **Not named — read the current branch.** `git log origin/main..HEAD` plus the diff: a branch is
    cut for one feature, and that feature is almost always what they want traced. Name what you
    picked on the first line, before the list: "Path of the request when a task is sent." One line,
@@ -68,7 +68,7 @@ fact per line.
 - Layer: Client, Validator, Controller, Service, Repository, Background job. Entries opening with
   "Same method:" do not repeat it — it has not changed.
 - The symbol goes in backticks, **with the method**. A class name alone does not say where to look.
-- Write the network call as it is: `POST /api/GlobalRepetition`.
+- Write the network call as it is: `POST /api/posts`.
 - **File and line are required** — as a link, `[File.cs:124](path/from/root/File.cs:124)`. In a
   terminal that link opens the file at that line, which is the whole point: the reader compares
   against the code instead of scrolling for it.
@@ -79,7 +79,7 @@ fact per line.
 ## What belongs in the sub-bullets
 
 A bullet explains **mechanics**. It does not restate the method's name in other words.
-"`OpeningMomentUtc` computes the opening moment" is an empty line — it repeats the identifier.
+"`PublishMomentUtc` computes the publish moment" is an empty line — it repeats the identifier.
 Write what the name does not already say.
 
 Always break down:
@@ -201,170 +201,128 @@ things that are not on the path have crept in.
 
 # Worked example
 
-A real trace across a Kotlin Multiplatform client and a .NET backend: a teacher assigns a "global
-repetition" and picks when it opens for the student. Match its **density and register** — one fact
-per line, no preamble, no hedging.
+A constructed example, not a real repository: a writer schedules a post and picks when it goes
+live. The client is Kotlin Multiplatform, the backend ASP.NET. The paths and line numbers are
+invented — the shape is what to copy, not the coordinates.
+
+Match its **density and register**: one fact per line, no preamble, no hedging. The library calls
+explained in it are real, and those explanations transfer as they are.
 
 Two caveats.
 
-**The set of layers is not a template.** This one has twenty-two entries with a validator, a leave
+**The set of layers is not a template.** This one has sixteen entries with a validator, a quota
 check and a migration because that is how this request is built. Another may have no validator at
 all, and no second part. Copying the shape means inventing steps.
 
-**It is frozen in time** and quotes code that has since moved on. It is a model of form, not a
-description of a live system.
-
-The example below is in English because this file is. A real trace follows the reader's language.
+**The example is in English because this file is.** A real trace follows the reader's language.
 
 ---
 
-Path of the request when a global repetition is sent with a chosen time. Links open the file at
-the line; the root is the backend, the client is reached through `../`.
+Path of the request when a post is published with a scheduled time.
 
-## 1. Client, `AssignTaskScreenComponent.onSubmitClicked()` → `performAssign()`
+## 1. Client, `ComposeScreenComponent.onPublishClicked()` → `performPublish()`
 
-- Was there before the branch, unchanged: [AssignTaskScreenComponent.kt:514](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:514) and [:592](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:592).
-- The tap arrives as a `Submit` event through `onEvent`; `onSubmitClicked()` first asks how many unfinished tasks the student has and raises a sheet when there are any.
-- `performAssign()` re-validates the cards: a network wait sits between the tap and the send, and the fields stay editable throughout.
-- The "when" field is deliberately outside that check — the send button never depends on it.
+- Was there before the branch, unchanged: [ComposeScreenComponent.kt:214](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:214) and [:266](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:266).
+- The tap arrives as a `Publish` event through `onEvent`; `onPublishClicked()` first checks the draft for empty required blocks and raises a sheet when it finds any.
+- `performPublish()` re-validates: a network wait sits between the tap and the send, and the editor stays live throughout.
+- The "when" field is deliberately outside that check — the publish button never depends on it.
 
 ## 2. Same component, the clock and the timer
 
-- `clock: Clock = Clock.System` introduced in this branch, [:140](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:140). A third constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
-- `chosenOpeningMoments` introduced in this branch, [:159](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:159) — a mirror of the chosen moments, because Decompose's `Value` is not a `Flow`.
-- `expireChosenMomentsWhenTheyArrive()` introduced in this branch, [:201](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:201): a `Value.subscribe(lifecycle, CREATE_DESTROY)` plus `flatMapLatest` onto a sleep that ends at the chosen moment.
-- `openingTicks` was there before the branch, [OnlyOpened.kt:53](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/core/util/OnlyOpened.kt:53), used here in a new way: it sleeps to the exact instant instead of ticking every minute.
-- `dropMomentsAlreadyGoneBy()` introduced in this branch, [:231](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:231). Called from the timer and from `lifecycle.doOnResume` — a timer does not run in the background.
+- `clock: Clock = Clock.System` introduced in this branch, [:88](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
+- `scheduledMoments` introduced in this branch, [:95](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:95) — a mirror of the chosen instants, because the state holder is not a `Flow`.
+- `expireScheduleWhenItArrives()` introduced in this branch, [:130](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:130): one sleep armed at the chosen instant, re-armed through `flatMapLatest` whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
+- `dropMomentsAlreadyGoneBy()` introduced in this branch, [:151](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
 
-## 3. Same component, handling `AvailableAtChanged`
+## 3. Same component, handling `PublishAtChanged`
 
-- The event was introduced in this branch, [AssignTaskScreenEvent.kt:48](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenEvent.kt:48).
-- Handler at [AssignTaskScreenComponent.kt:396](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:396): `takeIf { it != null && it > clock.now() }` — a past moment is never stored at all, or the card would show a time in the past for a frame.
-- `AssignTaskDraft.availableAt` introduced in this branch, [AssignTaskDraft.kt:39](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/domain/model/AssignTaskDraft.kt:39); `null` means "as soon as it is sent".
-- `SavedAssignCard.availableAtEpochMillis` introduced in this branch, [:830](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/AssignTaskScreenComponent.kt:830) — the choice survives process death, and a stale one is corrected on the next resume.
+- The event was introduced in this branch, [ComposeScreenEvent.kt:34](app/src/commonMain/kotlin/com/example/compose/ComposeScreenEvent.kt:34).
+- Handler at [ComposeScreenComponent.kt:198](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:198): `takeIf { it != null && it > clock.now() }` — a past instant is never stored at all, or the field would show a time in the past for a frame.
+- `PostDraft.publishAt` introduced in this branch, [PostDraft.kt:22](app/src/commonMain/kotlin/com/example/posts/PostDraft.kt:22); `null` means "as soon as it is sent".
+- `SavedDraft.publishAtEpochMillis` introduced in this branch, [:402](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:402) — the choice survives process death, and a stale one is corrected on the next resume.
 
-## 4. Client, the "when" field on the card
+## 4. Client, `PostsRepositoryImpl.submitDraft()`
 
-- `AssignTaskWhenField` introduced in this branch, [AssignTaskWhenField.kt:49](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/ui/AssignTaskWhenField.kt:49); placed on the card at [AssignTaskCard.kt:352](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/ui/AssignTaskCard.kt:352), for the repetition kind only.
-- Two dialogs in sequence: the calendar reuses the existing `AppDatePickerDialog`, while `AppTimePickerDialog` was introduced in this branch, [AppTimePickerDialog.kt:49](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/auth/presentation/components/AppTimePickerDialog.kt:49).
-- Past days are greyed out through `SelectableDates`; Material 3's time picker has no such hook, so a past hour resolves to "now" rather than a refusal.
-- `assignTaskWhenText` introduced in this branch, [AssignTaskWhenFormatter.kt:31](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/presentation/assign/ui/AssignTaskWhenFormatter.kt:31) — either "now" or "17 Sep, 20:00" in the device's zone.
+- Was there before the branch; one argument added: [PostsRepositoryImpl.kt:141](app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt:141).
+- `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()` is ISO-8601 in UTC with a trailing `Z`, exactly the shape the server demands.
+- The field `publishAt: String? = null` introduced in this branch, [CreatePostRequest.kt:18](app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt:18). The default is load-bearing: with `encodeDefaults = false`, a property equal to its default is never handed to the serializer, so the key is absent rather than null.
+- Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
 
-## 5. Client, `TeacherTasksRepositoryImpl.submitDraft()`
+## 5. `POST /api/posts`
 
-- Was there before the branch; one argument added: [TeacherTasksRepositoryImpl.kt:539](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/tasks/data/repository/TeacherTasksRepositoryImpl.kt:539).
-- `draft.availableAt?.toString()` — `kotlin.time.Instant.toString()` is ISO-8601 in UTC with a trailing `Z`, exactly the shape the server demands.
-- The field `availableAt: String? = null` introduced in this branch, [CreateGlobalRepeatRequest.kt:29](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/repetition/data/network/dto/CreateGlobalRepeatRequest.kt:29). The default is load-bearing: with `encodeDefaults = false`, a property equal to its default is never handed to the serializer.
-- Without `= null` the body would carry `"available_at": null`, which is a different message, even though this server happens to tolerate it.
-- The memorization branch is untouched: a memorization lands on a study day and the teacher never names a moment.
-
-## 6. `POST /api/GlobalRepetition`
-
-- Was there before the branch: [RepetitionApiService.kt:96](../TahfeezAIRoot/TahfeezAIKMP/tahfeezApp/src/commonMain/kotlin/com/app/tahfeez/repetition/data/network/RepetitionApiService.kt:96), Ktor with the app-wide `JsonDefault`.
+- Was there before the branch: [PostsApiService.kt:44](app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt:44), Ktor with the app-wide `Json` instance.
 - `expectSuccess = true` — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
 
-## 7. Validator `CreateGlobalRepeatTaskRequestValidator` → 400
+## 6. Validator `CreatePostRequestValidator` → 400
 
-- File introduced in this branch; the rule sits at [CreateGlobalRepeatTaskRequestValidator.cs:14](Application/Validators/CreateGlobalRepeatTaskRequestValidator.cs:14).
+- File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
 - Nothing calls it: `AddValidatorsFromAssemblyContaining` finds it by scanning the assembly, and `AddFluentValidationAutoValidation` runs it before the controller's first line.
-- `RuleFor(x => x.AvailableAt)` names the property. The lambda is passed as an expression tree, so the library reads the property *name* out of it; that name becomes the key in the 400 body, snake-cased.
+- `RuleFor(x => x.PublishAt)` names the property. The lambda is passed as an expression tree, so the library reads the property *name* out of it; that name becomes the key in the 400 body.
 - `.Must(...)` is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }` is a property pattern; it does not match on `null`, `is not` yields `true`, so an absent field passes.
 - `.WithMessage(...)` states both the mistake and the accepted form instead of a generic "invalid request".
 - On failure ModelState is invalid and `[ApiController]` returns the 400 with `ValidationProblemDetails` on its own.
 
-## 8. Controller `GlobalRepetitionController.Create`
+## 7. Controller `PostsController.Create`
 
-- Was there before the branch, rewritten to a single expression: [GlobalRepetitionController.cs:65](Presentation/Controllers/GlobalRepetitionController.cs:65).
-- `GlobalRepeatOutcome` and `GlobalRepeatCreateResult` were deleted outright — with the daily cap gone they carried one member.
-- The 409 "already assigned today" and the 500 "not configured" arms went with them.
-- `GetStudentProgress` at [:47](Presentation/Controllers/GlobalRepetitionController.cs:47) now means something else: synchronous, calls no service, always answers "available" — kept only for app versions already shipped.
+- Was there before the branch, rewritten to a single expression: [PostsController.cs:52](Presentation/Controllers/PostsController.cs:52).
+- `PublishOutcome` and its result wrapper were deleted outright — with the daily posting cap gone they carried one member.
+- The 409 "already posted today" and the 500 "not configured" arms went with them.
+- `GetPostingAllowance` at [:31](Presentation/Controllers/PostsController.cs:31) now means something else: synchronous, calls no service, always answers "allowed" — kept only for app versions already shipped.
 
-## 9. Service `GlobalRepetitionService.CreateAsync`, opening lines
+## 8. Service `PostService.CreateAsync`, opening lines
 
-- Return type changed to the response DTO: [GlobalRepetitionService.cs:61](Application/Services/GlobalRepetitionService.cs:61).
-- `GetByIdAsync` and `HelperTimeZone.ResolveTimezone` were there before: zone from the profile, else the country, else a default.
-- Reading the `AccessGlobalRepeat` setting and the settings dependency were removed — the "opens in N hours" delay no longer exists.
+- Return type changed to the response DTO: [PostService.cs:58](Application/Services/PostService.cs:58).
+- The author lookup and the timezone resolution were there before: zone from the profile, else the account's country, else the platform default.
+- Reading the `PublishDelayHours` setting and the settings dependency were removed — the "goes live in N hours" delay no longer exists.
 
-## 10. Same method, `OpeningMomentUtc`
+## 9. Same method, `PublishMomentUtc`
 
-- Method introduced in this branch, [:124](Application/Services/GlobalRepetitionService.cs:124); the constant `PastInstantWorthReporting` at [:35](Application/Services/GlobalRepetitionService.cs:35).
-- `request.AvailableAt is not { } requestedAt` — a null check and a capture in one expression; no field, return "now".
+- Method introduced in this branch, [:121](Application/Services/PostService.cs:121); the constant `PastInstantWorthReporting` at [:33](Application/Services/PostService.cs:33).
+- `request.PublishAt is not { } requestedAt` — a null check and a capture in one expression; no field, return "now".
 - `ToUniversalTime()` rather than `SpecifyKind` — an offset such as `+05:00` arrives as `Kind = Local` and names a different instant than its digits read; the column is `timestamptz` and rejects a non-UTC kind outright.
-- A past moment is replaced by "now"; `Log.Warning` fires only past a five-minute drift.
-- A future moment: `serverNowUtc + _testMode.Scale(span)`. Outside test mode `Scale` returns the span untouched, so one expression covers both.
+- A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning` fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
 
-## 11. Same method, the leave checks → 409
+## 10. Same method, the quota check → 409
 
-- The calls themselves were there before the branch, [:75–77](Application/Services/GlobalRepetitionService.cs:75).
-- The second `EnsureDayIsFree` now means something else: it used to ask about the day a few hours of delay landed on, and now asks about the day the teacher named, which may be weeks out.
-- The calendar loads every approved leave with no upper bound, so a repetition aimed into a distant approved leave is caught without further work.
-- All three throw; an exception filter turns them into a 409 with a code, the student id and the leave's end date.
+- The calls themselves were there before the branch, [:71–74](Application/Services/PostService.cs:71).
+- The second check now means something else: it used to ask about the day a few hours of delay landed on, and now asks about the day the writer named, which may be weeks out.
+- The quota window is loaded once with no upper bound, so a post aimed far into the future is still measured against the right day.
+- Both throw; an exception filter turns them into a 409 carrying a code and the day that is already full.
 
-## 12. Same method, building the row
+## 11. Same method, building the row
 
-- `AssignmentDay` was there before the branch but now means something else: [:92](Application/Services/GlobalRepetitionService.cs:92) — it used to be the day the work was handed out, and is now the day it is placed on, read in the student's zone.
-- The `_testMode.IsEnabled ? null : ...` branch is gone — the null existed only to dodge a unique index that this branch drops.
-- `CreatedAt` and `AvailableAt` can now be weeks apart, which was impossible before.
+- `PublishOnDay` was there before the branch but now means something else: [:88](Application/Services/PostService.cs:88) — it used to be the day the post was written, and is now the day it goes live, read in the author's zone.
+- The test-mode branch that nulled it is gone — the null existed only to dodge a unique index that this branch drops.
+- `CreatedAt` and `PublishAt` can now be weeks apart, which was impossible before.
 
-## 13. Same method, `FillRangeFields`
+## 12. Repository `PostRepository.CreateAsync`
 
-- Was there before the branch, unchanged: [:95](Application/Services/GlobalRepetitionService.cs:95).
-- Switches on the unit string and fills the unit number plus a page span, so the row carries pages whichever unit was chosen.
-- Immediately afterwards the ayah bounds are overwritten from the request as absolute ids.
-
-## 14. Repository `GlobalRepetitionRepository.CreateAsync`
-
-- Return type changed from nullable to non-nullable: [GlobalRepetitionRepository.cs:18](Infrastructure/Repositories/GlobalRepetitionRepository.cs:18).
+- Return type changed from nullable to non-nullable: [PostRepository.cs:19](Infrastructure/Repositories/PostRepository.cs:19).
 - The unique-violation catch was removed: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
-- The Npgsql import and the `created == null` branch in the service went with it.
+- The Npgsql import and the null branch in the service went with it.
 
-## 15. Same method, the change notification
+## 13. Same method, the change notification, then the 201
 
-- Was there before the branch, unchanged: [GlobalRepetitionService.cs:106](Application/Services/GlobalRepetitionService.cs:106), but it matters more now — the moment can be far off and the device must learn about it in advance.
-- The target enum is `[Flags]`, so one ping can name several parts of the client's copy at once.
-
-## 16. Response 200, `MapToResponse`
-
-- Was there before the branch, unchanged: [:303](Application/Services/GlobalRepetitionService.cs:303).
-- The availability instant is stamped `Kind = Utc`, or JSON omits the trailing `Z` and the client's parse fails.
-- `IsAvailable` compares now against the opening moment; for work scheduled ahead it is usually false.
+- The notification was there before the branch, unchanged: [PostService.cs:103](Application/Services/PostService.cs:103), but it matters more now — the instant can be far off and subscribers' devices must learn about it in advance.
+- The target enum is `[Flags]`, so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.
+- In the response the instant is stamped `Kind = Utc`, or JSON omits the trailing `Z` and the client's parse fails.
 
 After the request:
 
-## 17. `GlobalRepetitionRepository.GetActiveForStudentAsync`
+## 14. `PostRepository.GetVisibleForFeedAsync`
 
-- Was there before the branch, unchanged: [GlobalRepetitionRepository.cs:25](Infrastructure/Repositories/GlobalRepetitionRepository.cs:25), but it carries more now — it alone hides work scheduled for the day after tomorrow.
-- Filters on "not done" plus, when enabled, "available at or before now"; a flag lifts the gate so the client can pre-fetch content.
+- Was there before the branch, unchanged: [PostRepository.cs:28](Infrastructure/Repositories/PostRepository.cs:28), but it carries more now — it alone hides a post scheduled for the day after tomorrow.
+- Filters on "not deleted" plus "publish at or before now"; a flag lifts the gate so the author's own drafts view can show what is still pending.
 
-## 18. `PendingPushService`
+## 15. `QuietHoursRescheduler` and `SetPublishAtAsync`
 
-- Was there before the branch, unchanged: the catch-up window at [PendingPushService.cs:52](Application/Services/PendingPushService.cs:52).
-- A projection over four tables that already store a fire instant; the window reaches two hours into the past and has no upper bound, so work scheduled at any distance appears in the snapshot.
-- That is why the reminder needs no new infrastructure: the device arms its own alarm.
+- `SetPublishAtAsync` gained a third parameter and now writes three columns: [PostRepository.cs:96](Infrastructure/Repositories/PostRepository.cs:96) — the instant, the day it lands on, and a reset of the "already announced" flag.
+- The parameter is required rather than defaulted, so the compiler points at the one call site; a default would let the instant and the day drift apart in silence.
+- The author's zone is threaded down to the write, because only the caller knows whose calendar the day is read in.
+- The undo record is written before the row moves: a record with the row still in place is harmless, while a moved row nobody recorded could never be put back.
 
-## 19. `LeaveTaskRescheduler` and `SetAvailableAtAsync`
+## 16. Migration `DropDailyPostUniqueIndex`
 
-- `SetAvailableAtAsync` gained a third parameter and now writes three columns: [GlobalRepetitionRepository.cs:114](Infrastructure/Repositories/GlobalRepetitionRepository.cs:114).
-- The parameter is required rather than defaulted, so the compiler points at the one call site; a default would let the two columns drift apart in silence.
-- The student's zone is threaded through `MoveTaskAsync` [LeaveTaskRescheduler.cs:231](Application/Services/LeaveTaskRescheduler.cs:231) and `SetOpeningMomentAsync` [:276](Application/Services/LeaveTaskRescheduler.cs:276); only the repetition arm computes a day, the other kinds have no such column.
-- `PullBackAsync` [:89](Application/Services/LeaveTaskRescheduler.cs:89) gives back both the instant and the day on an early return.
-- The shifting rule itself did not change: a leave moves every future repetition, not only the ones falling inside it.
-
-## 20. `TaskStudentRepository.AssignedRepetitions`
-
-- The query did not change but returns something else: [TaskStudentRepository.cs:345](Infrastructure/Repositories/TaskStudentRepository.cs:345) — the "starts on" day comes from `AssignmentDay`, and that column changed meaning.
-- The matching filter still reads the instant inside the *teacher's* day window, so across time zones a row will not be found by the very date it displays.
-
-## 21. `TeacherService`, the group card counter
-
-- Not on the request's path, but broken by it: [TeacherService.cs:426](Application/Services/TeacherService.cs:426).
-- The counter stays on the wire but now means something else: always zero.
-- The shipped client adds it to the memorization counter to get "tasks still to hand out"; at any other value the card's progress bar would be stuck below half forever.
-- The internal counterpart and the "busy" band were deleted — the first was a copy of the reachable-student count, the second unreachable.
-
-## 22. Migration `DropGlobalRepetitionDailyUniqueIndex`
-
-- Introduced in this branch: [20260920174322_DropGlobalRepetitionDailyUniqueIndex.cs:30](Infrastructure/Migrations/20260920174322_DropGlobalRepetitionDailyUniqueIndex.cs:30).
-- `DROP INDEX IF EXISTS` as raw SQL rather than the builder's `DropIndex` — production was adopted at a squashed baseline, so the chain does not prove the index is there.
-- `Down()` recreates a unique index and will fail once a student has two repetitions on one day; the comment says so outright.
-- No separate migrate step is needed: this service applies migrations at startup, before it binds its port.
+- Introduced in this branch: [DropDailyPostUniqueIndex.cs:24](Infrastructure/Migrations/DropDailyPostUniqueIndex.cs:24).
+- `DROP INDEX IF EXISTS` as raw SQL rather than the builder's `DropIndex` — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
+- `Down()` recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
