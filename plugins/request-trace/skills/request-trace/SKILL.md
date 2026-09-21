@@ -101,8 +101,8 @@ Do not break down: a plain assignment, a getter call, the order of arguments.
 **No vague verbs.** "Specifies the property", "handles the request", "is responsible for", "takes
 care of" — each of these leaves the reader asking *meaning what?*. Say what concretely happens and
 where it shows up: not "`RuleFor` specifies the property" but "the checks after it apply to the
-`PublishAt` field; the library reads that field's name out of the lambda and puts it in the 400
-body as `publish_at`, so the client sees which field is wrong". If a term of art is unavoidable —
+`PublishAt` field; the library reads that field's name out of the lambda and names it in the 400
+body, so the client sees which field is wrong". If a term of art is unavoidable —
 an expression tree — explain it in the same line, in plain words.
 
 **Name what you mean, in every bullet.** "The field", "this value", "it" work only when the same
@@ -259,13 +259,21 @@ not steps.
 As many entries as there are places on the path. Usually ten to twenty. More than thirty means
 things that are not on the path have crept in.
 
+## Going deeper into one entry
+
+The companion skill `explain-line` picks up where the trace stops: `/explain-line 7` drills into
+step 7, `/explain-line 7.4` into the fourth bullet of step 7, one question at a time. That only works
+if the numbers mean what the reader sees — keep entries numbered without gaps and bullets dashed, one
+fact each, so a count of bullets lands on the one they mean.
+
 ---
 
 # Worked example
 
 A constructed example, not a real repository: a writer schedules a post and picks when it goes
 live. The client is Kotlin Multiplatform, the backend ASP.NET. The paths and line numbers are
-invented — the shape is what to copy, not the coordinates.
+invented — the shape is what to copy, not the coordinates. The stack is incidental too: the skill
+works with any language, and on another stack the notes explain that stack's libraries instead.
 
 Match its **density and register**: one fact per line, no preamble, no hedging. The library calls
 explained in it are real, and those explanations transfer as they are.
@@ -319,7 +327,7 @@ Path of the request when a post is published with a scheduled time.
 
 - File introduced in this branch, a FluentValidation¹² validator class; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
 - No code in the project calls it — ASP.NET Core¹³ does: `AddValidatorsFromAssemblyContaining`¹⁴ registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`¹⁵ makes the framework run it on each request, before the controller's first line.
-- `RuleFor(x => x.PublishAt)`¹⁶ — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree¹⁷ — so the library reads the field's name without running anything, and writes it into the 400 body as `publish_at`, telling the client which field is wrong.
+- `RuleFor(x => x.PublishAt)`¹⁶ — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree¹⁷ — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
 - `.Must(...)`¹⁸ is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`¹⁹ is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
 - `.WithMessage(...)`²⁰ states both the mistake and the accepted form instead of a generic "invalid request".
 - On failure ModelState²¹ is invalid and `[ApiController]`²² returns the 400 with `ValidationProblemDetails`²³ on its own.
@@ -363,7 +371,7 @@ Path of the request when a post is published with a scheduled time.
 - The unique-violation catch was removed: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
 - The Npgsql³¹ import and the null branch in the service went with it.
 
-## 13. Same method, the change notification, then the 201
+## 13. Service `PostService.CreateAsync`, the change notification, then the 201
 
 - The notification was there before the branch, unchanged: [PostService.cs:103](Application/Services/PostService.cs:103), but it matters more now — the instant can be far off and subscribers' devices must learn about it in advance.
 - The target enum is `[Flags]`³², so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.

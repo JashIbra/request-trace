@@ -1,15 +1,24 @@
 # request-trace
 
-A Claude Code skill that walks **one user action through the code** — from the tap in the client to
-the response, and on into whatever happens after it — and spells out the mechanics of every call
-along the way.
+Two Claude Code skills for reading unfamiliar code before you review it:
 
-It exists for code review. A list of changed files tells you where to look; it does not tell you
+- **`request-trace`** walks **one user action through the code** — from the tap in the client to the
+  response, and on into whatever happens after it — and spells out the mechanics of every call along
+  the way.
+- **`explain-line`** explains **one line of that code by question and answer**: a one-sentence answer
+  first, then only what you ask next. See [Going deeper](#going-deeper-explain-line).
+
+Both come in one plugin.
+
+`request-trace` exists for code review. A list of changed files tells you where to look; it does not tell you
 what runs after what. This produces the route, and under each stop it answers, in advance, the
 questions a reviewer is about to ask: what is this function, where did this variable come from, why
 is the code here at all.
 
 ## What it produces
+
+The sample below is a Kotlin client and an ASP.NET backend, but the skill works with any language;
+on another stack the notes explain that stack's libraries instead.
 
 ````markdown
 ## 6. Validator `CreatePostRequestValidator` → 400
@@ -21,8 +30,8 @@ is the code here at all.
   each request, before the controller's first line.
 - `RuleFor(x => x.PublishAt)`¹⁶ — the checks chained after it apply to the `PublishAt` field. The
   compiler hands the library a description of the lambda rather than its code — an expression tree¹⁷ —
-  so the library reads the field's name without running anything and writes it into the 400 body as
-  `publish_at`, telling the client which field is wrong.
+  so the library reads the field's name without running anything and names it in the 400 body,
+  telling the client which field is wrong.
 
 …
 
@@ -59,8 +68,33 @@ exists, and what it does — each note readable on its own.
 - **No diagrams, no preamble, no summary.** A sequence diagram of the same trace holds less and
   cannot be pasted into a ticket.
 
-The skill is written in English so it can be shared; the trace it produces follows the language the
+Both skills are written in English so they can be shared; what they produce follows the language the
 person asked in.
+
+## Going deeper: `explain-line`
+
+The plugin ships a second skill for the moment a trace entry is not enough. It explains **one line
+of code by question and answer**: a one-sentence answer first, then only what you ask next, so you
+choose how deep to go.
+
+```
+/explain-line 6.3
+```
+
+In a conversation that already has a trace, that drills into the third bullet of step 6 — the
+`RuleFor` line shown above. It also takes a pasted line of
+code or a `file:line`, with no trace at all.
+
+What it insists on:
+
+- **The direct answer first** — "Yes", "No", "In `Kind`" — then one to three lines.
+- **A wrong restatement is corrected with the first word.** "So it checks that the time did not
+  come?" gets "No", not a polite detour.
+- **Real values from your project**, not categories: "20:00 in Berlin goes out as `18:00Z`".
+- **The equivalent in the language you write every day** when you ask for it.
+- **Checked against the code before answering**, including the setup the answer depends on — a
+  serializer's converters, a framework default.
+- **No headers, no footnotes, no "want me to go deeper?"** — the next question is yours.
 
 ## Install
 
@@ -69,8 +103,8 @@ person asked in.
 /plugin install request-trace@request-trace-marketplace
 ```
 
-Or, without the plugin machinery, copy `plugins/request-trace/skills/request-trace/SKILL.md` into
-`~/.claude/skills/request-trace/SKILL.md`. Personal skills are picked up at session start, with no
+Or, without the plugin machinery, copy each skill's folder from `plugins/request-trace/skills/` into
+`~/.claude/skills/` — `request-trace/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
 install step — you just lose versioning and updates.
 
 ## Use
