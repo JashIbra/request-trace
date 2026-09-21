@@ -126,6 +126,12 @@ language, as a numbered list whose numbers match the markers. Each note: the nam
 from (language, library, database, standard), and what it is or does in general — one or two plain
 sentences.
 
+**The source needs explaining too.** A reader who does not know `RuleFor` usually does not know
+FluentValidation either. The first note that cites a library, framework or driver as its source says
+in a few words what that source is — "FluentValidation, a third-party .NET library for writing
+validation rules as code" — and later notes from the same source just name it. The language's own
+standard library needs no introduction.
+
 A note says what the thing **is**; the bullet says **how this code uses it**. Do not repeat the
 bullet in the note, and do not make the bullet define the thing — with the note in place, the bullet
 can stay on the mechanics of this request.
@@ -364,16 +370,16 @@ After the request:
 ## Notes
 
 1. `Clock` — Kotlin standard library (`kotlin.time`). An interface with one method, `now()`, returning the current instant; `Clock.System` reads the real clock, and code that takes a `Clock` as a parameter can be handed a fake one in a test.
-2. `Flow` — kotlinx.coroutines. A stream of values delivered over time to whoever collects it; operators such as `map` or `flatMapLatest` build new streams from it.
+2. `Flow` — kotlinx.coroutines, JetBrains' library for asynchronous code in Kotlin. A stream of values delivered over time to whoever collects it; operators such as `map` or `flatMapLatest` build new streams from it.
 3. `flatMapLatest` — kotlinx.coroutines. For each new value of a flow, starts a new inner flow and cancels the one started for the previous value, so only the work for the latest value keeps running.
 4. `takeIf` — Kotlin standard library. Returns the value itself when the given condition holds, otherwise `null`.
 5. `kotlin.time.Instant` — Kotlin standard library. A point on the global timeline, independent of any time zone; `toString()` renders it as an ISO-8601 string in UTC.
 6. ISO-8601 — an international standard for writing dates and times as text, e.g. `2026-09-17T20:00:00Z`; the trailing `Z` means UTC.
-7. `encodeDefaults` — kotlinx.serialization setting. When `false`, a property whose value equals its declared default is left out of the JSON entirely instead of being written.
+7. `encodeDefaults` — a setting of kotlinx.serialization, JetBrains' library that turns Kotlin objects into JSON and back. When `false`, a property whose value equals its declared default is left out of the JSON entirely instead of being written.
 8. Ktor — JetBrains' HTTP library for Kotlin; on the client it is what actually sends the request.
 9. `expectSuccess` — Ktor client setting. When `true`, a response with a non-2xx status throws an exception instead of being returned as an ordinary response.
-10. `AddValidatorsFromAssemblyContaining` — FluentValidation. Scans the assembly that contains the given type and registers every validator class it finds in the dependency-injection container.
-11. `AddFluentValidationAutoValidation` — FluentValidation's ASP.NET Core integration. Makes the framework run the matching validator on every incoming request body, before the controller method.
+10. `AddValidatorsFromAssemblyContaining` — FluentValidation, a third-party .NET library for writing validation rules as code rather than as attributes on properties. Scans the assembly that contains the given type and registers every validator class it finds in the dependency-injection container.
+11. `AddFluentValidationAutoValidation` — FluentValidation's integration with ASP.NET Core, .NET's web framework. Makes the framework run the matching validator on every incoming request body, before the controller method.
 12. `RuleFor` — FluentValidation. Starts a rule for one property of the object being validated; the checks chained after it apply to that property.
 13. Expression tree — a C# feature. When a lambda is passed to a parameter of type `Expression<...>`, the compiler hands over a data structure describing the lambda's code rather than the compiled code, so the receiver can inspect it — for instance, read which property it touches.
 14. `Must` — FluentValidation. Attaches a custom check to a rule: a function that returns `true` when the value is valid.
@@ -385,10 +391,10 @@ After the request:
 20. `ToUniversalTime` — .NET. Converts a `DateTime` to UTC according to its `Kind`: a `Local` value is shifted by its offset, a `Utc` value is returned unchanged.
 21. `SpecifyKind` — .NET. Returns the same date and clock digits under a different `Kind` label, without shifting the time.
 22. `DateTimeKind` — .NET. Says whether a `DateTime` is in UTC (`Utc`), in the machine's own zone (`Local`), or carries no zone at all (`Unspecified`).
-23. `timestamptz` — PostgreSQL. A column type holding an absolute instant ("timestamp with time zone"); the .NET driver only accepts UTC `DateTime` values for it.
-24. `Log.Warning` — Serilog. Writes a warning-level entry through the application-wide static logger.
+23. `timestamptz` — PostgreSQL, the database. A column type holding an absolute instant ("timestamp with time zone"); the .NET driver only accepts UTC `DateTime` values for it.
+24. `Log.Warning` — Serilog, a logging library for .NET. Writes a warning-level entry through the application-wide static logger.
 25. Npgsql — the .NET driver for PostgreSQL; `PostgresErrorCodes.UniqueViolation` is its name for the error raised when an insert breaks a unique index.
 26. `[Flags]` — .NET attribute on an enum. Marks its values as bits that can be combined, so a single variable can hold several of them at once.
 27. `DROP INDEX IF EXISTS` — SQL (PostgreSQL). Removes an index, and does nothing instead of failing when the index is not there.
-28. `DropIndex` — Entity Framework Core migrations. The builder method that emits a plain `DROP INDEX`, which fails when the index is missing.
+28. `DropIndex` — migrations in Entity Framework Core, .NET's library for working with a database through C# objects. The builder method that emits a plain `DROP INDEX`, which fails when the index is missing.
 29. `Down()` — Entity Framework Core migrations. The method that undoes the migration when the database is rolled back to an earlier version.

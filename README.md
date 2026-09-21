@@ -28,8 +28,9 @@ is the code here at all.
 
 ## Notes
 
-10. `AddValidatorsFromAssemblyContaining` — FluentValidation. Scans the assembly that contains the
-    given type and registers every validator class it finds in the dependency-injection container.
+10. `AddValidatorsFromAssemblyContaining` — FluentValidation, a third-party .NET library for writing
+    validation rules as code. Scans the assembly that contains the given type and registers every
+    validator class it finds in the dependency-injection container.
 12. `RuleFor` — FluentValidation. Starts a rule for one property of the object being validated; the
     checks chained after it apply to that property.
 13. Expression tree — a C# feature. When a lambda is passed to a parameter of type `Expression<...>`,
