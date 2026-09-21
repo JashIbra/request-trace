@@ -105,6 +105,11 @@ where it shows up: not "`RuleFor` specifies the property" but "the checks after 
 body as `publish_at`, so the client sees which field is wrong". If a term of art is unavoidable —
 an expression tree — explain it in the same line, in plain words.
 
+**Name what you mean, in every bullet.** "The field", "this value", "it" work only when the same
+bullet has already said which one. Each bullet is read on its own — the reader arrived at it from a
+link — so name the field, variable or case again: not "so a request without the field passes" but
+"so a request without `publish_at` — the writer left the time on 'now' — passes".
+
 ## Footnotes for everything the project did not write
 
 The reader knows their own code. What they may not know is the platform under it: a validation
@@ -315,7 +320,7 @@ Path of the request when a post is published with a scheduled time.
 - File introduced in this branch, a FluentValidation¹² validator class; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
 - No code in the project calls it — ASP.NET Core¹³ does: `AddValidatorsFromAssemblyContaining`¹⁴ registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`¹⁵ makes the framework run it on each request, before the controller's first line.
 - `RuleFor(x => x.PublishAt)`¹⁶ — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree¹⁷ — so the library reads the field's name without running anything, and writes it into the 400 body as `publish_at`, telling the client which field is wrong.
-- `.Must(...)`¹⁸ is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`¹⁹ is a property pattern; it does not match on `null`, `is not` yields `true`, so an absent field passes.
+- `.Must(...)`¹⁸ is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`¹⁹ is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
 - `.WithMessage(...)`²⁰ states both the mistake and the accepted form instead of a generic "invalid request".
 - On failure ModelState²¹ is invalid and `[ApiController]`²² returns the 400 with `ValidationProblemDetails`²³ on its own.
 
