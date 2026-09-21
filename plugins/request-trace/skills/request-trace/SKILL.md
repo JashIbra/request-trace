@@ -122,15 +122,26 @@ literal text in a terminal. Number in order of first appearance. A later mention
 may carry the same number again, so the reader does not have to scroll back to find it.
 
 **The notes** go at the very end, after the last entry, under a heading "Notes" in the reader's
-language, as a numbered list whose numbers match the markers. Each note: the name, where it comes
-from (language, library, database, standard), and what it is or does in general — one or two plain
-sentences.
+language, as a numbered list whose numbers match the markers. Each note answers two questions, in
+this order:
 
-**The source needs explaining too.** A reader who does not know `RuleFor` usually does not know
-FluentValidation either. The first note that cites a library, framework or driver as its source says
-in a few words what that source is — "FluentValidation, a third-party .NET library for writing
-validation rules as code" — and later notes from the same source just name it. The language's own
-standard library needs no introduction.
+1. **What it is.** Its kind — method, class, attribute, setting, type, operator, language feature,
+   column type, standard — and where it comes from, with that source's purpose in a few words: "a
+   method of FluentValidation, a library for checking incoming data"; "an attribute from ASP.NET
+   Core, Microsoft's web framework"; "a function from the Kotlin standard library". The kind tells
+   the reader what sort of thing they are looking at; the source and its purpose tell them where it
+   lives and why it exists.
+2. **What it does** — one plain sentence, in general terms.
+
+**Every note stands on its own.** The reader arrives at one note from one marker and will not go
+hunting for a second, so the source's purpose is repeated in every note that cites it — a few words,
+not a paragraph. Explaining a library once, inside the note for some other name, hides it from
+everyone who lands elsewhere.
+
+**Name the library in the body, too.** At the step built on it, say so — "a FluentValidation
+validator class", "the `DropIndex` of Entity Framework Core migrations" — and give the library its
+own note there. A reader searching the text for a library they keep seeing in the notes should find
+it.
 
 A note says what the thing **is**; the bullet says **how this code uses it**. Do not repeat the
 bullet in the note, and do not make the bullet define the thing — with the note in place, the bullet
@@ -270,37 +281,37 @@ Path of the request when a post is published with a scheduled time.
 ## 2. Same component, the clock and the timer
 
 - `clock: Clock = Clock.System`¹ introduced in this branch, [:88](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
-- `scheduledMoments` introduced in this branch, [:95](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:95) — a mirror of the chosen instants, because the state holder is not a `Flow`².
-- `expireScheduleWhenItArrives()` introduced in this branch, [:130](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`³ whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
+- `scheduledMoments` introduced in this branch, [:95](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:95) — a mirror of the chosen instants, because the state holder is not a kotlinx.coroutines² `Flow`³.
+- `expireScheduleWhenItArrives()` introduced in this branch, [:130](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`⁴ whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
 - `dropMomentsAlreadyGoneBy()` introduced in this branch, [:151](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
 
 ## 3. Same component, handling `PublishAtChanged`
 
 - The event was introduced in this branch, [ComposeScreenEvent.kt:34](app/src/commonMain/kotlin/com/example/compose/ComposeScreenEvent.kt:34).
-- Handler at [ComposeScreenComponent.kt:198](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:198): `takeIf { it != null && it > clock.now() }`⁴ — a past instant is never stored at all, or the field would show a time in the past for a frame.
+- Handler at [ComposeScreenComponent.kt:198](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:198): `takeIf { it != null && it > clock.now() }`⁵ — a past instant is never stored at all, or the field would show a time in the past for a frame.
 - `PostDraft.publishAt` introduced in this branch, [PostDraft.kt:22](app/src/commonMain/kotlin/com/example/posts/PostDraft.kt:22); `null` means "as soon as it is sent".
 - `SavedDraft.publishAtEpochMillis` introduced in this branch, [:402](app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt:402) — the choice survives process death, and a stale one is corrected on the next resume.
 
 ## 4. Client, `PostsRepositoryImpl.submitDraft()`
 
 - Was there before the branch; one argument added: [PostsRepositoryImpl.kt:141](app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt:141).
-- `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`⁵ is ISO-8601⁶ in UTC with a trailing `Z`, exactly the shape the server demands.
-- The field `publishAt: String? = null` introduced in this branch, [CreatePostRequest.kt:18](app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt:18). The default is load-bearing: with `encodeDefaults = false`⁷, a property equal to its default is never handed to the serializer, so the key is absent rather than null.
+- `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`⁶ is ISO-8601⁷ in UTC with a trailing `Z`, exactly the shape the server demands.
+- The field `publishAt: String? = null` introduced in this branch, [CreatePostRequest.kt:18](app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt:18). The default is load-bearing: with `encodeDefaults = false`⁸ in kotlinx.serialization⁹, a property equal to its default is never handed to the serializer, so the key is absent rather than null.
 - Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
 
 ## 5. `POST /api/posts`
 
-- Was there before the branch: [PostsApiService.kt:44](app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt:44), Ktor⁸ with the app-wide `Json` instance.
-- `expectSuccess = true`⁹ — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
+- Was there before the branch: [PostsApiService.kt:44](app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt:44), Ktor¹⁰ with the app-wide `Json` instance.
+- `expectSuccess = true`¹¹ — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
 
 ## 6. Validator `CreatePostRequestValidator` → 400
 
-- File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
-- No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining`¹⁰ registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`¹¹ makes the framework run it on each request, before the controller's first line.
-- `RuleFor(x => x.PublishAt)`¹² — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree¹³ — so the library reads the field's name without running anything, and writes it into the 400 body as `publish_at`, telling the client which field is wrong.
-- `.Must(...)`¹⁴ is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`¹⁵ is a property pattern; it does not match on `null`, `is not` yields `true`, so an absent field passes.
-- `.WithMessage(...)`¹⁶ states both the mistake and the accepted form instead of a generic "invalid request".
-- On failure ModelState¹⁷ is invalid and `[ApiController]`¹⁸ returns the 400 with `ValidationProblemDetails`¹⁹ on its own.
+- File introduced in this branch, a FluentValidation¹² validator class; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
+- No code in the project calls it — ASP.NET Core¹³ does: `AddValidatorsFromAssemblyContaining`¹⁴ registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`¹⁵ makes the framework run it on each request, before the controller's first line.
+- `RuleFor(x => x.PublishAt)`¹⁶ — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree¹⁷ — so the library reads the field's name without running anything, and writes it into the 400 body as `publish_at`, telling the client which field is wrong.
+- `.Must(...)`¹⁸ is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`¹⁹ is a property pattern; it does not match on `null`, `is not` yields `true`, so an absent field passes.
+- `.WithMessage(...)`²⁰ states both the mistake and the accepted form instead of a generic "invalid request".
+- On failure ModelState²¹ is invalid and `[ApiController]`²² returns the 400 with `ValidationProblemDetails`²³ on its own.
 
 ## 7. Controller `PostsController.Create`
 
@@ -318,9 +329,9 @@ Path of the request when a post is published with a scheduled time.
 ## 9. Same method, `PublishMomentUtc`
 
 - Method introduced in this branch, [:121](Application/Services/PostService.cs:121); the constant `PastInstantWorthReporting` at [:33](Application/Services/PostService.cs:33).
-- `request.PublishAt is not { } requestedAt`¹⁵ — a null check and a capture in one expression; no field, return "now".
-- `ToUniversalTime()`²⁰ rather than `SpecifyKind`²¹ — an offset such as `+05:00` arrives as `Kind = Local`²² and names a different instant than its digits read; the column is `timestamptz`²³ and rejects a non-UTC kind outright.
-- A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`²⁴ fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
+- `request.PublishAt is not { } requestedAt`¹⁹ — a null check and a capture in one expression; no field, return "now".
+- `ToUniversalTime()`²⁴ rather than `SpecifyKind`²⁵ — an offset such as `+05:00` arrives as `Kind = Local`²⁶ and names a different instant than its digits read; the column is a PostgreSQL²⁷ `timestamptz`²⁸ and rejects a non-UTC kind outright.
+- A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`²⁹ from Serilog³⁰ fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
 
 ## 10. Same method, the quota check → 409
 
@@ -339,12 +350,12 @@ Path of the request when a post is published with a scheduled time.
 
 - Return type changed from nullable to non-nullable: [PostRepository.cs:19](Infrastructure/Repositories/PostRepository.cs:19).
 - The unique-violation catch was removed: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
-- The Npgsql²⁵ import and the null branch in the service went with it.
+- The Npgsql³¹ import and the null branch in the service went with it.
 
 ## 13. Same method, the change notification, then the 201
 
 - The notification was there before the branch, unchanged: [PostService.cs:103](Application/Services/PostService.cs:103), but it matters more now — the instant can be far off and subscribers' devices must learn about it in advance.
-- The target enum is `[Flags]`²⁶, so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.
+- The target enum is `[Flags]`³², so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.
 - In the response the instant is stamped `Kind = Utc`, or JSON omits the trailing `Z` and the client's parse fails.
 
 After the request:
@@ -364,37 +375,44 @@ After the request:
 ## 16. Migration `DropDailyPostUniqueIndex`
 
 - Introduced in this branch: [DropDailyPostUniqueIndex.cs:24](Infrastructure/Migrations/DropDailyPostUniqueIndex.cs:24).
-- `DROP INDEX IF EXISTS`²⁷ as raw SQL rather than the builder's `DropIndex`²⁸ — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
-- `Down()`²⁹ recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
+- `DROP INDEX IF EXISTS`³³ as raw SQL rather than the `DropIndex`³⁴ of Entity Framework Core³⁵ migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
+- `Down()`³⁶ recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
 
 ## Notes
 
-1. `Clock` — Kotlin standard library (`kotlin.time`). An interface with one method, `now()`, returning the current instant; `Clock.System` reads the real clock, and code that takes a `Clock` as a parameter can be handed a fake one in a test.
-2. `Flow` — kotlinx.coroutines, JetBrains' library for asynchronous code in Kotlin. A stream of values delivered over time to whoever collects it; operators such as `map` or `flatMapLatest` build new streams from it.
-3. `flatMapLatest` — kotlinx.coroutines. For each new value of a flow, starts a new inner flow and cancels the one started for the previous value, so only the work for the latest value keeps running.
-4. `takeIf` — Kotlin standard library. Returns the value itself when the given condition holds, otherwise `null`.
-5. `kotlin.time.Instant` — Kotlin standard library. A point on the global timeline, independent of any time zone; `toString()` renders it as an ISO-8601 string in UTC.
-6. ISO-8601 — an international standard for writing dates and times as text, e.g. `2026-09-17T20:00:00Z`; the trailing `Z` means UTC.
-7. `encodeDefaults` — a setting of kotlinx.serialization, JetBrains' library that turns Kotlin objects into JSON and back. When `false`, a property whose value equals its declared default is left out of the JSON entirely instead of being written.
-8. Ktor — JetBrains' HTTP library for Kotlin; on the client it is what actually sends the request.
-9. `expectSuccess` — Ktor client setting. When `true`, a response with a non-2xx status throws an exception instead of being returned as an ordinary response.
-10. `AddValidatorsFromAssemblyContaining` — FluentValidation, a third-party .NET library for writing validation rules as code rather than as attributes on properties. Scans the assembly that contains the given type and registers every validator class it finds in the dependency-injection container.
-11. `AddFluentValidationAutoValidation` — FluentValidation's integration with ASP.NET Core, .NET's web framework. Makes the framework run the matching validator on every incoming request body, before the controller method.
-12. `RuleFor` — FluentValidation. Starts a rule for one property of the object being validated; the checks chained after it apply to that property.
-13. Expression tree — a C# feature. When a lambda is passed to a parameter of type `Expression<...>`, the compiler hands over a data structure describing the lambda's code rather than the compiled code, so the receiver can inspect it — for instance, read which property it touches.
-14. `Must` — FluentValidation. Attaches a custom check to a rule: a function that returns `true` when the value is valid.
-15. Property pattern (`is { ... }`, `is not { ... }`) — C# pattern matching. Tests that a value is non-null and that its listed properties match; the empty form `is { } x` only checks for non-null and binds the value to `x`.
-16. `WithMessage` — FluentValidation. Sets the error text returned when the preceding check fails.
-17. ModelState — ASP.NET Core. The per-request record of whether the incoming data was bound and validated successfully, with the errors when it was not.
-18. `[ApiController]` — ASP.NET Core attribute. Among other things, makes the framework answer 400 on its own when ModelState is invalid, without running the action.
-19. `ValidationProblemDetails` — ASP.NET Core. The standard JSON shape for validation errors: a title, a status, and an `errors` object keyed by field name.
-20. `ToUniversalTime` — .NET. Converts a `DateTime` to UTC according to its `Kind`: a `Local` value is shifted by its offset, a `Utc` value is returned unchanged.
-21. `SpecifyKind` — .NET. Returns the same date and clock digits under a different `Kind` label, without shifting the time.
-22. `DateTimeKind` — .NET. Says whether a `DateTime` is in UTC (`Utc`), in the machine's own zone (`Local`), or carries no zone at all (`Unspecified`).
-23. `timestamptz` — PostgreSQL, the database. A column type holding an absolute instant ("timestamp with time zone"); the .NET driver only accepts UTC `DateTime` values for it.
-24. `Log.Warning` — Serilog, a logging library for .NET. Writes a warning-level entry through the application-wide static logger.
-25. Npgsql — the .NET driver for PostgreSQL; `PostgresErrorCodes.UniqueViolation` is its name for the error raised when an insert breaks a unique index.
-26. `[Flags]` — .NET attribute on an enum. Marks its values as bits that can be combined, so a single variable can hold several of them at once.
-27. `DROP INDEX IF EXISTS` — SQL (PostgreSQL). Removes an index, and does nothing instead of failing when the index is not there.
-28. `DropIndex` — migrations in Entity Framework Core, .NET's library for working with a database through C# objects. The builder method that emits a plain `DROP INDEX`, which fails when the index is missing.
-29. `Down()` — Entity Framework Core migrations. The method that undoes the migration when the database is rolled back to an earlier version.
+1. `Clock` — an interface from the Kotlin standard library (`kotlin.time`). Its one method, `now()`, returns the current instant; `Clock.System` reads the real clock, and code that takes a `Clock` as a parameter can be handed a fake one in a test.
+2. kotlinx.coroutines — a JetBrains library for asynchronous code in Kotlin: coroutines, and the `Flow` streams built on them.
+3. `Flow` — a type from kotlinx.coroutines, the library for asynchronous code in Kotlin. A stream of values delivered over time to whoever collects it.
+4. `flatMapLatest` — an operator from kotlinx.coroutines, the library for asynchronous code in Kotlin. For each new value of a flow, starts new work and cancels the work started for the previous value.
+5. `takeIf` — a function from the Kotlin standard library. Returns the value itself when the condition holds, otherwise `null`.
+6. `kotlin.time.Instant` — a type from the Kotlin standard library. A point on the global timeline with no time zone; `toString()` writes it as an ISO-8601 string in UTC.
+7. ISO-8601 — an international standard for writing dates and times as text, e.g. `2026-09-17T20:00:00Z`; the trailing `Z` means UTC.
+8. `encodeDefaults` — a setting of kotlinx.serialization, the library that turns Kotlin objects into JSON and back. When `false`, a property whose value equals its default is left out of the JSON.
+9. kotlinx.serialization — a JetBrains library that turns Kotlin objects into JSON and back.
+10. Ktor — a JetBrains library for HTTP in Kotlin; on the client it is what sends the request.
+11. `expectSuccess` — a setting of the Ktor HTTP client. When `true`, a response with a non-2xx status throws an exception instead of being returned as an ordinary response.
+12. FluentValidation — a third-party .NET library for checking incoming data: the rules are written as code in a validator class rather than as attributes on the request's properties.
+13. ASP.NET Core — Microsoft's web framework for .NET: it receives HTTP requests, turns their bodies into objects and calls controller methods.
+14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for checking incoming data. Finds every validator class in the assembly that holds the given type and registers them in the dependency-injection container.
+15. `AddFluentValidationAutoValidation` — a method of FluentValidation's integration with ASP.NET Core, the web framework. Makes the framework run the matching validator on each incoming request body, before the controller method.
+16. `RuleFor` — a method of FluentValidation, the library for checking incoming data. Starts a rule for one property; every check chained after it applies to that property.
+17. Expression tree — a C# language feature. When a lambda goes to a parameter of type `Expression<...>`, the compiler passes a description of its code instead of compiled code, so the receiver can read, for instance, which property it touches.
+18. `Must` — a method of FluentValidation, the library for checking incoming data. Adds a custom check to a rule: a function that returns `true` when the value is valid.
+19. Property pattern (`is { ... }`, `is not { ... }`) — a C# language feature, part of pattern matching. Tests that a value is non-null and that its listed properties match; the empty form `is { } x` only checks for non-null and puts the value in `x`.
+20. `WithMessage` — a method of FluentValidation, the library for checking incoming data. Sets the error text returned when the preceding check fails.
+21. ModelState — an object from ASP.NET Core, Microsoft's web framework. Records whether the current request's data was read and validated successfully, with the errors if not.
+22. `[ApiController]` — an attribute from ASP.NET Core, Microsoft's web framework. Among other things, makes the framework answer 400 itself when ModelState has errors, without calling the controller method.
+23. `ValidationProblemDetails` — a class from ASP.NET Core, Microsoft's web framework. The standard JSON shape of a validation error: a title, a status, and an `errors` object keyed by field name.
+24. `ToUniversalTime` — a method from the .NET standard library. Converts a `DateTime` to UTC according to its `Kind`: a `Local` value is shifted by its offset, a `Utc` value is returned as is.
+25. `SpecifyKind` — a method from the .NET standard library. Returns the same date and clock digits under a different `Kind` label, shifting nothing.
+26. `DateTimeKind` — an enum from the .NET standard library. Says whether a `DateTime` is in UTC (`Utc`), in the machine's zone (`Local`), or has no zone at all (`Unspecified`).
+27. PostgreSQL — the relational database the backend stores its data in.
+28. `timestamptz` — a column type in PostgreSQL, the database. Holds an absolute instant ("timestamp with time zone"); the .NET driver accepts only UTC `DateTime` values for it.
+29. `Log.Warning` — a method of Serilog, a logging library for .NET. Writes a warning-level entry through the application-wide logger.
+30. Serilog — a logging library for .NET.
+31. Npgsql — the .NET driver for PostgreSQL, the library through which .NET code talks to the database; `PostgresErrorCodes.UniqueViolation` is its code for an insert that breaks a unique index.
+32. `[Flags]` — an attribute from the .NET standard library, placed on an enum. Marks its values as bits that can be combined, so one variable can hold several at once.
+33. `DROP INDEX IF EXISTS` — an SQL command in PostgreSQL, the database. Removes an index, and does nothing instead of failing when the index is not there.
+34. `DropIndex` — a method of Entity Framework Core migrations; Entity Framework Core is .NET's library for working with a database through C# objects. Emits a plain `DROP INDEX`, which fails when the index is missing.
+35. Entity Framework Core — .NET's library for working with a database through C# objects; its migrations describe each schema change as code.
+36. `Down()` — a method of Entity Framework Core migrations, .NET's library for working with a database. Undoes the migration when the database is rolled back to an earlier version.

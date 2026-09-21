@@ -14,33 +14,33 @@ is the code here at all.
 ````markdown
 ## 6. Validator `CreatePostRequestValidator` → 400
 
-- File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
-- No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining`¹⁰ registers it
-  at startup, and `AddFluentValidationAutoValidation`¹¹ makes the framework run it on each request,
-  before the controller's first line.
-- `RuleFor(x => x.PublishAt)`¹² — the checks chained after it apply to the `PublishAt` field. The
-  compiler hands the library a description of the lambda rather than its code — an expression tree¹³ —
+- File introduced in this branch, a FluentValidation¹² validator class; the rule sits at
+  [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
+- No code in the project calls it — ASP.NET Core¹³ does: `AddValidatorsFromAssemblyContaining`¹⁴
+  registers it at startup, and `AddFluentValidationAutoValidation`¹⁵ makes the framework run it on
+  each request, before the controller's first line.
+- `RuleFor(x => x.PublishAt)`¹⁶ — the checks chained after it apply to the `PublishAt` field. The
+  compiler hands the library a description of the lambda rather than its code — an expression tree¹⁷ —
   so the library reads the field's name without running anything and writes it into the 400 body as
   `publish_at`, telling the client which field is wrong.
-- On failure ModelState¹⁷ is invalid and `[ApiController]`¹⁸ returns the 400 on its own.
 
 …
 
 ## Notes
 
-10. `AddValidatorsFromAssemblyContaining` — FluentValidation, a third-party .NET library for writing
-    validation rules as code. Scans the assembly that contains the given type and registers every
-    validator class it finds in the dependency-injection container.
-12. `RuleFor` — FluentValidation. Starts a rule for one property of the object being validated; the
-    checks chained after it apply to that property.
-13. Expression tree — a C# feature. When a lambda is passed to a parameter of type `Expression<...>`,
-    the compiler hands over a description of the lambda's code rather than compiled code, so the
-    receiver can read, for instance, which property it touches.
+12. FluentValidation — a third-party .NET library for checking incoming data: the rules are written
+    as code in a validator class rather than as attributes on the request's properties.
+14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for checking
+    incoming data. Finds every validator class in the assembly and registers them in the
+    dependency-injection container.
+16. `RuleFor` — a method of FluentValidation, the library for checking incoming data. Starts a rule
+    for one property; every check chained after it applies to that property.
 ````
 
 Every entry carries a file and a line as a link, so the reader jumps straight to the code instead of
-scrolling for it. Every name the project did not write — a library call, a language construct, a
-database type — carries a small superscript number pointing to a note at the end that says what it is.
+scrolling for it. Every name the project did not write carries a small superscript number pointing
+to a note at the end that says what kind of thing it is, where it comes from and why that source
+exists, and what it does — each note readable on its own.
 
 ## What it insists on
 
@@ -51,7 +51,9 @@ database type — carries a small superscript number pointing to a note at the e
   often: the diff is tiny or absent while the meaning has moved.
 - **Everything the project did not write gets a footnote.** `RuleFor`, `flatMapLatest`,
   `encodeDefaults`, `timestamptz` — a superscript number at the first mention, and a numbered note at
-  the end saying what the thing is. The bullet keeps to how this code uses it.
+  the end: what kind of thing it is, which library it belongs to and what that library is for, and
+  what it does. Libraries themselves are named in the text and get notes too. The bullet keeps to
+  how this code uses the thing.
 - **Refusal points are flagged with their status codes**, and so is anything running before the
   controller, which is easy to miss because nothing calls it explicitly.
 - **No diagrams, no preamble, no summary.** A sequence diagram of the same trace holds less and
