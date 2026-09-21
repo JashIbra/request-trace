@@ -139,8 +139,10 @@ If the client is not yours, or there is none, start at the endpoint and say so i
 caller gets: `→ 400`, `→ 409`. It is the first thing the reader looks for.
 
 **Whatever runs before the controller.** Validators, filters and middleware execute before the
-controller's first line, and they are easy to miss precisely because nothing calls them
-explicitly. Say it outright: "nothing calls it; the pipeline runs it".
+controller's first line, and they are easy to miss precisely because nothing in the project's code
+calls them. Say it outright, and **name who does run it**: "no code in the project calls it — the
+framework runs it when the request arrives, before the controller". Never a figure of speech such
+as "not called by hand" — in translation that reads as slang and still does not say who calls it.
 
 **Side effects.** Signals, pushes, log lines, cache invalidations. They do not shape the response,
 but they are what people go looking for later when something "did not refresh".
@@ -256,7 +258,7 @@ Path of the request when a post is published with a scheduled time.
 ## 6. Validator `CreatePostRequestValidator` → 400
 
 - File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
-- Nothing calls it: `AddValidatorsFromAssemblyContaining` finds it by scanning the assembly, and `AddFluentValidationAutoValidation` runs it before the controller's first line.
+- No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining` registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation` makes the framework run it on each request, before the controller's first line.
 - `RuleFor(x => x.PublishAt)` names the property. The lambda is passed as an expression tree, so the library reads the property *name* out of it; that name becomes the key in the 400 body.
 - `.Must(...)` is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }` is a property pattern; it does not match on `null`, `is not` yields `true`, so an absent field passes.
 - `.WithMessage(...)` states both the mistake and the accepted form instead of a generic "invalid request".

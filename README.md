@@ -15,8 +15,9 @@ is the code here at all.
 ## 6. Validator `CreatePostRequestValidator` → 400
 
 - File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
-- Nothing calls it: `AddValidatorsFromAssemblyContaining` finds it by scanning the assembly, and
-  `AddFluentValidationAutoValidation` runs it before the controller's first line.
+- No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining` registers it
+  at startup, and `AddFluentValidationAutoValidation` makes the framework run it on each request,
+  before the controller's first line.
 - `RuleFor(x => x.PublishAt)` names the property. The lambda is passed as an expression tree, so
   the library reads the property *name* out of it; that name becomes the key in the 400 body.
 - `.Must(...)` is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`
