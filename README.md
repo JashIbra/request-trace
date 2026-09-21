@@ -23,38 +23,37 @@ on another stack the notes explain that stack's libraries instead.
 ````markdown
 ## 6. Validator `CreatePostRequestValidator` → 400
 
-- File introduced in this branch, a FluentValidation[¹²](post-scheduling.md#L123) validator class; the rule sits at
+- File introduced in this branch, a FluentValidation[¹²](post-scheduling/12-FluentValidation.md) validator class; the rule sits at
   [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
-- No code in the project calls it — ASP.NET Core[¹³](post-scheduling.md#L124) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling.md#L125)
-  registers it at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling.md#L126) makes the framework run it on
+- No code in the project calls it — ASP.NET Core[¹³](post-scheduling/13-ASP.NET-Core.md) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling/14-AddValidatorsFromAssemblyContaining.md)
+  registers it at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling/15-AddFluentValidationAutoValidation.md) makes the framework run it on
   each request, before the controller's first line.
-- `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling.md#L127) — the checks chained after it apply to the `PublishAt` field. The
-  compiler hands the library a description of the lambda rather than its code — an expression tree[¹⁷](post-scheduling.md#L128) —
+- `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling/16-RuleFor.md) — the checks chained after it apply to the `PublishAt` field. The
+  compiler hands the library a description of the lambda rather than its code — an expression tree[¹⁷](post-scheduling/17-Expression-tree.md) —
   so the library reads the field's name without running anything and names it in the 400 body,
   telling the client which field is wrong.
 
 …
+````
 
-## Notes
+And one of its note files, `post-scheduling/12-FluentValidation.md`, opened from the ¹²:
 
-12. FluentValidation — a third-party .NET library for validating objects: the rules are written as
-    code in a validator class rather than as attributes on the properties.
-14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for validating
-    objects against rules written as code. Finds every validator class in the assembly and registers them in the
-    dependency-injection container.
-16. `RuleFor` — a method of FluentValidation, the library for validating objects against rules written as code. Starts a rule
-    for one property; every check chained after it applies to that property.
+````markdown
+# ¹² FluentValidation
+
+FluentValidation — a third-party .NET library for validating objects: the rules are written as
+code in a validator class rather than as attributes on the properties.
 ````
 
 Every entry carries a file and a line as a link, so the reader jumps straight to the code instead of
 scrolling for it. Every name the project did not write carries a small superscript number, a link to
-the line of its note at the end that says what kind of thing it is, where it comes from and why that source
-exists, and what it does — each note readable on its own.
+a note that says what kind of thing it is, where it comes from and why that source exists, and what it
+does — each note readable on its own. The note opens as a small file in its own tab, beside the trace.
 
 The trace goes into a Markdown file, not the chat — `.claude/traces/<branch>.md` when `.claude/` is
 git-ignored — so it never shows up in the diff and reads comfortably next to the editor. The chat
-gets only the file's path. Links are relative to that file, with the line as a `#L124` anchor, and a
-footnote marker links to its note's line in the same file.
+gets only the file's path. Links are relative to that file, with the line as a `#L124` anchor. Each
+footnote is also written to its own small file beside the trace, and the marker links there.
 
 ## What it insists on
 

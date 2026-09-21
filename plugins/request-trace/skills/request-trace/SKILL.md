@@ -38,7 +38,8 @@ not into the chat. The chat gets one line: the file's path.
 - **Name:** after the branch or the action — `global-repetition-scheduled-time.md`. Tracing the same
   thing again overwrites the file; that is the point, the old numbers are stale.
 - **Links are relative to the file itself**, so from `.claude/traces/` they start with `../../`.
-  A footnote marker links to its note's line in this same file (see the marker rule below).
+  Each footnote goes into a small file of its own in a folder beside the trace, and the trace has
+  no notes list at the end (see the marker rule below).
 
 ## What to trace when you are not told
 
@@ -137,16 +138,22 @@ The test is simple: if searching the project will not find where it is defined, 
 The project's own names never do; the three states below cover them.
 
 **The marker** is a Unicode superscript number directly after the name, at its first mention, and
-it is a link to its note's line in the same file: `` `RuleFor`[¹²](post-scheduling.md#L188) ``. Write
-the notes first, then fill in each marker's line, and check that every link lands on its note. A link
-to a line of a file is the one form every viewer follows: the Claude app's preview does not jump to
-in-page anchors at all — not `#id`, not `[^12]` footnotes — and shows no link titles on hover.
-Number in order of first appearance. A later mention far from the first may carry the same number
-again, so the reader does not have to scroll back to find it.
+it is a link to that note's own file: `` `RuleFor`[¹⁶](post-scheduling/16-RuleFor.md) ``. Every note
+is written to a small file of its own, in a folder named after the trace — `.claude/traces/
+post-scheduling/16-RuleFor.md` — holding a heading with the number and the name, and the note.
+A click on the marker opens the note in its own tab, beside the trace. No link back to the trace:
+the Claude app's preview reopens a Markdown file from the top, and with a `#L` anchor as source text
+rather than the rendered page. Nor are the notes put under each step instead — a block of
+definitions after every entry buries the route it explains.
+The trace itself carries no list of notes at the end — the files are the notes. Not an in-page
+anchor: the Claude app's preview follows links to files but
+does not jump to `#id` anchors or `[^12]` footnotes, and shows no link titles on hover. Rewriting a
+trace rewrites its note folder — clear it first, the numbering has moved. Number in order of first
+appearance. A later mention far from the first may carry the same number again, so the reader does
+not have to scroll back to find it.
 
-**The notes** go at the very end, after the last entry, under a heading "Notes" in the reader's
-language, as a numbered list whose numbers match the markers. Each note answers two questions, in
-this order:
+**Each note** — the text of its file, under a heading with its number and name in the reader's
+language — answers two questions, in this order:
 
 1. **What it is.** Its kind — method, class, attribute, setting, type, operator, language feature,
    column type, standard — and where it comes from, with that source's purpose in a few words: "a
@@ -294,7 +301,7 @@ A constructed example, not a real repository: a writer schedules a post and pick
 live. The client is Kotlin Multiplatform, the backend ASP.NET. The paths and line numbers are
 invented — the shape is what to copy, not the coordinates. The links are written as they would be
 in `.claude/traces/post-scheduling.md`, hence the `../../`, and the footnote markers point at the
-lines of that file. The stack is incidental too: the skill
+note files in `.claude/traces/post-scheduling/`. The stack is incidental too: the skill
 works with any language, and on another stack the notes explain that stack's libraries instead.
 
 Match its **density and register**: one fact per line, no preamble, no hedging. The library calls
@@ -321,38 +328,38 @@ Path of the request when a post is published with a scheduled time.
 
 ## 2. Same component, the clock and the timer
 
-- `clock: Clock = Clock.System`[¹](post-scheduling.md#L112) introduced in this branch, [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
-- `scheduledMoments` introduced in this branch, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — a mirror of the chosen instants, because the state holder is not a kotlinx.coroutines[²](post-scheduling.md#L113) `Flow`[³](post-scheduling.md#L114).
-- `expireScheduleWhenItArrives()` introduced in this branch, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](post-scheduling.md#L115) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
+- `clock: Clock = Clock.System`[¹](post-scheduling/01-Clock.md) introduced in this branch, [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
+- `scheduledMoments` introduced in this branch, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — a mirror of the chosen instants, because the state holder is not a kotlinx.coroutines[²](post-scheduling/02-kotlinx.coroutines.md) `Flow`[³](post-scheduling/03-Flow.md).
+- `expireScheduleWhenItArrives()` introduced in this branch, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](post-scheduling/04-flatMapLatest.md) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
 - `dropMomentsAlreadyGoneBy()` introduced in this branch, [:151](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
 
 ## 3. Same component, handling `PublishAtChanged`
 
 - The event was introduced in this branch, [ComposeScreenEvent.kt:34](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenEvent.kt#L34).
-- Handler at [ComposeScreenComponent.kt:198](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L198): `takeIf { it != null && it > clock.now() }`[⁵](post-scheduling.md#L116) — a past instant is never stored at all, or the field would show a time in the past for a frame.
+- Handler at [ComposeScreenComponent.kt:198](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L198): `takeIf { it != null && it > clock.now() }`[⁵](post-scheduling/05-takeIf.md) — a past instant is never stored at all, or the field would show a time in the past for a frame.
 - `PostDraft.publishAt` introduced in this branch, [PostDraft.kt:22](../../app/src/commonMain/kotlin/com/example/posts/PostDraft.kt#L22); `null` means "as soon as it is sent".
 - `SavedDraft.publishAtEpochMillis` introduced in this branch, [:402](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L402) — the choice survives process death, and a stale one is corrected on the next resume.
 
 ## 4. Client, `PostsRepositoryImpl.submitDraft()`
 
 - Was there before the branch; one argument added: [PostsRepositoryImpl.kt:141](../../app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt#L141).
-- `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](post-scheduling.md#L117) is ISO-8601[⁷](post-scheduling.md#L118) in UTC with a trailing `Z`, exactly the shape the server demands.
-- The field `publishAt: String? = null` introduced in this branch, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](post-scheduling.md#L119) in kotlinx.serialization[⁹](post-scheduling.md#L120), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
+- `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](post-scheduling/06-kotlin.time.Instant.md) is ISO-8601[⁷](post-scheduling/07-ISO-8601.md) in UTC with a trailing `Z`, exactly the shape the server demands.
+- The field `publishAt: String? = null` introduced in this branch, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](post-scheduling/08-encodeDefaults.md) in kotlinx.serialization[⁹](post-scheduling/09-kotlinx.serialization.md), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
 - Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
 
 ## 5. `POST /api/posts`
 
-- Was there before the branch: [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), Ktor[¹⁰](post-scheduling.md#L121) with the app-wide `Json` instance.
-- `expectSuccess = true`[¹¹](post-scheduling.md#L122) — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
+- Was there before the branch: [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), Ktor[¹⁰](post-scheduling/10-Ktor.md) with the app-wide `Json` instance.
+- `expectSuccess = true`[¹¹](post-scheduling/11-expectSuccess.md) — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
 
 ## 6. Validator `CreatePostRequestValidator` → 400
 
-- File introduced in this branch, a FluentValidation[¹²](post-scheduling.md#L123) validator class; the rule sits at [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
-- No code in the project calls it — ASP.NET Core[¹³](post-scheduling.md#L124) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling.md#L125) registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling.md#L126) makes the framework run it on each request, before the controller's first line.
-- `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling.md#L127) — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree[¹⁷](post-scheduling.md#L128) — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
-- `.Must(...)`[¹⁸](post-scheduling.md#L129) is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`[¹⁹](post-scheduling.md#L130) is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
-- `.WithMessage(...)`[²⁰](post-scheduling.md#L131) states both the mistake and the accepted form instead of a generic "invalid request".
-- On failure ModelState[²¹](post-scheduling.md#L132) is invalid and `[ApiController]`[²²](post-scheduling.md#L133) returns the 400 with `ValidationProblemDetails`[²³](post-scheduling.md#L134) on its own.
+- File introduced in this branch, a FluentValidation[¹²](post-scheduling/12-FluentValidation.md) validator class; the rule sits at [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
+- No code in the project calls it — ASP.NET Core[¹³](post-scheduling/13-ASP.NET-Core.md) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling/14-AddValidatorsFromAssemblyContaining.md) registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling/15-AddFluentValidationAutoValidation.md) makes the framework run it on each request, before the controller's first line.
+- `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling/16-RuleFor.md) — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree[¹⁷](post-scheduling/17-Expression-tree.md) — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
+- `.Must(...)`[¹⁸](post-scheduling/18-Must.md) is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`[¹⁹](post-scheduling/19-Property-pattern.md) is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
+- `.WithMessage(...)`[²⁰](post-scheduling/20-WithMessage.md) states both the mistake and the accepted form instead of a generic "invalid request".
+- On failure ModelState[²¹](post-scheduling/21-ModelState.md) is invalid and `[ApiController]`[²²](post-scheduling/22-note.md) returns the 400 with `ValidationProblemDetails`[²³](post-scheduling/23-ValidationProblemDetails.md) on its own.
 
 ## 7. Controller `PostsController.Create`
 
@@ -370,9 +377,9 @@ Path of the request when a post is published with a scheduled time.
 ## 9. Same method, `PublishMomentUtc`
 
 - Method introduced in this branch, [:121](../../Application/Services/PostService.cs#L121); the constant `PastInstantWorthReporting` at [:33](../../Application/Services/PostService.cs#L33).
-- `request.PublishAt is not { } requestedAt`[¹⁹](post-scheduling.md#L130) — a null check and a capture in one expression; no field, return "now".
-- `ToUniversalTime()`[²⁴](post-scheduling.md#L135) rather than `SpecifyKind`[²⁵](post-scheduling.md#L136) — an offset such as `+05:00` arrives as `Kind = Local`[²⁶](post-scheduling.md#L137) and names a different instant than its digits read; the column is a PostgreSQL[²⁷](post-scheduling.md#L138) `timestamptz`[²⁸](post-scheduling.md#L139) and rejects a non-UTC kind outright.
-- A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`[²⁹](post-scheduling.md#L140) from Serilog[³⁰](post-scheduling.md#L141) fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
+- `request.PublishAt is not { } requestedAt`[¹⁹](post-scheduling/19-Property-pattern.md) — a null check and a capture in one expression; no field, return "now".
+- `ToUniversalTime()`[²⁴](post-scheduling/24-ToUniversalTime.md) rather than `SpecifyKind`[²⁵](post-scheduling/25-SpecifyKind.md) — an offset such as `+05:00` arrives as `Kind = Local`[²⁶](post-scheduling/26-DateTimeKind.md) and names a different instant than its digits read; the column is a PostgreSQL[²⁷](post-scheduling/27-PostgreSQL.md) `timestamptz`[²⁸](post-scheduling/28-timestamptz.md) and rejects a non-UTC kind outright.
+- A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`[²⁹](post-scheduling/29-Log.Warning.md) from Serilog[³⁰](post-scheduling/30-Serilog.md) fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
 
 ## 10. Same method, the quota check → 409
 
@@ -391,12 +398,12 @@ Path of the request when a post is published with a scheduled time.
 
 - Return type changed from nullable to non-nullable: [PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19).
 - The unique-violation catch was removed: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
-- The Npgsql[³¹](post-scheduling.md#L142) import and the null branch in the service went with it.
+- The Npgsql[³¹](post-scheduling/31-Npgsql.md) import and the null branch in the service went with it.
 
 ## 13. Service `PostService.CreateAsync`, the change notification, then the 201
 
 - The notification was there before the branch, unchanged: [PostService.cs:103](../../Application/Services/PostService.cs#L103), but it matters more now — the instant can be far off and subscribers' devices must learn about it in advance.
-- The target enum is `[Flags]`[³²](post-scheduling.md#L143), so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.
+- The target enum is `[Flags]`[³²](post-scheduling/32-note.md), so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.
 - In the response the instant is stamped `Kind = Utc`, or JSON omits the trailing `Z` and the client's parse fails.
 
 After the request:
@@ -416,8 +423,14 @@ After the request:
 ## 16. Migration `DropDailyPostUniqueIndex`
 
 - Introduced in this branch: [DropDailyPostUniqueIndex.cs:24](../../Infrastructure/Migrations/DropDailyPostUniqueIndex.cs#L24).
-- `DROP INDEX IF EXISTS`[³³](post-scheduling.md#L144) as raw SQL rather than the `DropIndex`[³⁴](post-scheduling.md#L145) of Entity Framework Core[³⁵](post-scheduling.md#L146) migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
-- `Down()`[³⁶](post-scheduling.md#L147) recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
+- `DROP INDEX IF EXISTS`[³³](post-scheduling/33-DROP-INDEX-IF-EXISTS.md) as raw SQL rather than the `DropIndex`[³⁴](post-scheduling/34-DropIndex.md) of Entity Framework Core[³⁵](post-scheduling/35-Entity-Framework-Core.md) migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
+- `Down()`[³⁶](post-scheduling/36-Down.md) recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
+
+---
+
+The trace ends there. Below are the texts of its note files, one per file in
+`.claude/traces/post-scheduling/` — gathered here only to show them; the trace file holds none of
+them.
 
 ## Notes
 
