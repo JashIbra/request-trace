@@ -199,17 +199,27 @@ about. The labels are translated with the rest of the trace.
 - **Was there, unchanged.** One bullet, and only as far as the new code needs: say **how the new
   code uses it** — that is the answer to "why are we even in this file".
 - **Was there, changed.** Say what the diff did to it — a parameter added, a return type narrowed,
-  a body rewritten — right after the label.
+  a body rewritten — **and why**, in the same bullet: "non-nullable now, because the only path that
+  returned null was the unique-violation catch, and the index it caught is gone".
 - **Was there, now means something else.** The dangerous one, and the strongest candidate for a
   line. The diff is tiny or absent while the meaning has moved, and that is what review misses most
   often. Say it plainly: what it meant before, what it means now, and what changed for everyone
   reading that name.
-- **Removed in this branch.** What went, and why nothing needs it any more.
+- **Removed in this branch.** What went, and why nothing needs it any more — the mechanism, in the
+  same bullet: "the import served only the catch", not "went with the catch".
 
 Examples of the fourth kind: a column that kept its name but now records the day work is *placed*
 on rather than the day it was handed out; a guard call that is byte-identical but now asks about a
 different day; a wire field that survives but always answers zero, kept only for app versions
 already in people's hands.
+
+**A change without its reason is half a bullet.** The reviewer reads the diff to see *what*
+changed; the trace is there for *why*. Every bullet marked changed, removed or now meaning something
+else says why in that same bullet — never in the next one, never implied by "along with", "went with
+it", "together with". Those name a relation and hide its mechanism, exactly like a vague verb: say
+the link itself — "only the catch used this import", "the catch returned null, and it is gone, so
+the method never returns null". A reason the reader has to assemble from two bullets is a question
+they will send you.
 
 **Unchanged code earns its place, or it goes.** Keep an unchanged place only when the new behaviour
 depends on it (the client turns the new 400 into an error, the push service arms a reminder for the
@@ -222,7 +232,8 @@ looking for what changed.
 **Decide every state from git, never from memory** — not even for code you wrote an hour ago:
 `git diff <base>...HEAD -- <file>` says whether the branch touched it, `git show <base>:<file>` shows
 what was there. A file created in the branch and edited again in a later commit of the same branch is
-still new. Before handing the file over, check that every dashed bullet starts with a bold label.
+still new. Before handing the file over, go through every bullet: it starts with a bold label, and
+if the label is changed, removed or now meaning something else, the same bullet says why.
 
 ## Start with the human's action, not the endpoint
 
@@ -356,7 +367,7 @@ Path of the request when a post is published with a scheduled time.
 
 ## 4. Client, `PostsRepositoryImpl.submitDraft()`
 
-- **Was there, changed.** One argument added: [PostsRepositoryImpl.kt:141](../../app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt#L141).
+- **Was there, changed.** One argument added, `publishAt`, so the writer's chosen time reaches the request body: [PostsRepositoryImpl.kt:141](../../app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt#L141).
 - **New in this branch.** `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](post-scheduling/06-kotlin.time.Instant.md) is ISO-8601[⁷](post-scheduling/07-ISO-8601.md) in UTC with a trailing `Z`, exactly the shape the server demands.
 - **New in this branch.** The field `publishAt: String? = null`, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](post-scheduling/08-encodeDefaults.md) in kotlinx.serialization[⁹](post-scheduling/09-kotlinx.serialization.md), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
 - **New in this branch.** Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
@@ -377,16 +388,16 @@ Path of the request when a post is published with a scheduled time.
 
 ## 7. Controller `PostsController.Create`
 
-- **Was there, changed.** Rewritten to a single expression: [PostsController.cs:52](../../Presentation/Controllers/PostsController.cs#L52).
-- **Removed in this branch.** `PublishOutcome` and its result wrapper — with the daily posting cap gone they carried one member.
-- **Removed in this branch.** The 409 "already posted today" and the 500 "not configured" arms went with them.
+- **Was there, changed.** Rewritten to a single expression, because the service now hands back the finished response and there is no outcome left to branch on between 200, 409 and 500: [PostsController.cs:52](../../Presentation/Controllers/PostsController.cs#L52).
+- **Removed in this branch.** `PublishOutcome` and its result wrapper — with the daily posting cap and the delay setting both gone, they would carry a single member, "created".
+- **Removed in this branch.** The 409 "already posted today" and the 500 "not configured" arms. They answered two `PublishOutcome` members: the first came from the daily cap, the second from a missing `PublishDelayHours` setting. The branch drops both the cap and the setting, so there is nothing left for them to answer.
 - **Was there, now means something else.** `GetPostingAllowance` at [:31](../../Presentation/Controllers/PostsController.cs#L31): synchronous, calls no service, always answers "allowed" — kept only for app versions already shipped.
 
 ## 8. Service `PostService.CreateAsync`, opening lines
 
-- **Was there, changed.** Return type changed to the response DTO: [PostService.cs:58](../../Application/Services/PostService.cs#L58).
+- **Was there, changed.** Return type changed to the response DTO, because the result wrapper only existed to carry an outcome for the controller, and the outcomes are gone: [PostService.cs:58](../../Application/Services/PostService.cs#L58).
 - **Was there, unchanged.** The author lookup and the timezone resolution: zone from the profile, else the account's country, else the platform default.
-- **Removed in this branch.** Reading the `PublishDelayHours` setting and the settings dependency — the "goes live in N hours" delay no longer exists.
+- **Removed in this branch.** Reading the `PublishDelayHours` setting and the settings dependency — the writer now picks the moment, so there is no fixed "goes live in N hours" delay left to read.
 
 ## 9. Same method, `PublishMomentUtc`
 
@@ -410,9 +421,9 @@ Path of the request when a post is published with a scheduled time.
 
 ## 12. Repository `PostRepository.CreateAsync`
 
-- **Was there, changed.** Return type changed from nullable to non-nullable: [PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19).
-- **Removed in this branch.** The unique-violation catch: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
-- **Removed in this branch.** The Npgsql[³¹](post-scheduling/31-Npgsql.md) import and the null branch in the service went with it.
+- **Was there, changed.** Return type changed from nullable to non-nullable: [PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19). The only path that returned null was the unique-violation catch below; the branch drops the index it caught, and the catch with it, so the method can no longer return null.
+- **Removed in this branch.** The unique-violation catch: it caught a second post for the same day hitting the daily unique index and returned null. The index is dropped, and the only uniqueness left is the primary key on a freshly generated id, which cannot collide.
+- **Removed in this branch.** The Npgsql[³¹](post-scheduling/31-Npgsql.md) import and the null check in the service. The import served only the exception types in the catch; the null check handled the catch's null, which can no longer come back.
 
 ## 13. Service `PostService.CreateAsync`, the change notification, then the 201
 
@@ -426,7 +437,7 @@ After the request:
 
 ## 15. `QuietHoursRescheduler` and `SetPublishAtAsync`
 
-- **Was there, changed.** `SetPublishAtAsync` gained a third parameter and now writes three columns: [PostRepository.cs:96](../../Infrastructure/Repositories/PostRepository.cs#L96) — the instant, the day it lands on, and a reset of the "already announced" flag.
+- **Was there, changed.** `SetPublishAtAsync` gained a third parameter and now writes three columns: [PostRepository.cs:96](../../Infrastructure/Repositories/PostRepository.cs#L96) — the instant, the day it lands on, and a reset of the "already announced" flag. The day is the new parameter: when quiet hours push the instant, `PublishOnDay` — now the day the post goes live — has to move with it, or the author's list would keep showing the old day.
 - **New in this branch.** The parameter is required rather than defaulted, so the compiler points at the one call site; a default would let the instant and the day drift apart in silence.
 - **Was there, changed.** The author's zone is threaded down to the write, because only the caller knows whose calendar the day is read in.
 
