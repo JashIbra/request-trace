@@ -22,8 +22,9 @@ wrote in**. Symbol names, file paths, literals and JSON stay exactly as the code
 
 - **A line of code** pasted after the command — explain that line.
 - **A `file:line`** — open the file and explain that line.
-- **`N`** — step N of the latest request trace in this conversation (the `request-trace` skill). Take
-  the line its first file link points to, and say what the step does there.
+- **`N`** — step N of the latest request trace (the `request-trace` skill) — the one written in this
+  conversation, or the trace file it went into. Take the line its first file link points to, and say
+  what the step does there.
 - **`N.M`** — the M-th dashed bullet of step N, counted from the top, starting at 1. Explain the code
   that bullet is about.
 - **Nothing** — the line the conversation is already on. If there is none, ask for the line.
