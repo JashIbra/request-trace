@@ -221,6 +221,15 @@ the link itself — "only the catch used this import", "the catch returned null,
 the method never returns null". A reason the reader has to assemble from two bullets is a question
 they will send you.
 
+**One decision, one bullet.** When several edits in the diff follow from one decision — an index
+dropped, so the catch that guarded it goes, so the method can no longer return null, so its import
+and the caller's null check go too — they are one bullet, under the label of the edit that started
+it, with the others named inside it as its consequences. Do not cut one decision into a bullet per
+artefact because each piece could carry a label of its own: the reason then repeats in every piece,
+and what changed in behaviour is said in none of them. Inside that bullet, lead with what changed in
+behaviour — "`CreateAsync` now always returns the saved row" — then the mechanism. Edits with
+separate reasons stay separate bullets.
+
 **Unchanged code earns its place, or it goes.** Keep an unchanged place only when the new behaviour
 depends on it (the client turns the new 400 into an error, the push service arms a reminder for the
 new instant), when a refusal happens there, or when the route would break without it — and then in
@@ -233,7 +242,8 @@ looking for what changed.
 `git diff <base>...HEAD -- <file>` says whether the branch touched it, `git show <base>:<file>` shows
 what was there. A file created in the branch and edited again in a later commit of the same branch is
 still new. Before handing the file over, go through every bullet: it starts with a bold label, and
-if the label is changed, removed or now meaning something else, the same bullet says why.
+if the label is changed, removed or now meaning something else, the same bullet says why; and no
+single decision is spread over several bullets.
 
 ## Start with the human's action, not the endpoint
 
@@ -388,9 +398,7 @@ Path of the request when a post is published with a scheduled time.
 
 ## 7. Controller `PostsController.Create`
 
-- **Was there, changed.** Rewritten to a single expression, because the service now hands back the finished response and there is no outcome left to branch on between 200, 409 and 500: [PostsController.cs:52](../../Presentation/Controllers/PostsController.cs#L52).
-- **Removed in this branch.** `PublishOutcome` and its result wrapper — with the daily posting cap and the delay setting both gone, they would carry a single member, "created".
-- **Removed in this branch.** The 409 "already posted today" and the 500 "not configured" arms. They answered two `PublishOutcome` members: the first came from the daily cap, the second from a missing `PublishDelayHours` setting. The branch drops both the cap and the setting, so there is nothing left for them to answer.
+- **Removed in this branch.** `PublishOutcome` and its result wrapper, so `Create` now simply returns the post: [PostsController.cs:52](../../Presentation/Controllers/PostsController.cs#L52). The outcome told the controller which answer to give — 409 "already posted today" for the daily cap, 500 "not configured" for a missing `PublishDelayHours` setting. The branch drops both the cap and the setting, which would leave a single outcome, "created"; so the wrapper and both error arms go, and the action shrinks to a single expression.
 - **Was there, now means something else.** `GetPostingAllowance` at [:31](../../Presentation/Controllers/PostsController.cs#L31): synchronous, calls no service, always answers "allowed" — kept only for app versions already shipped.
 
 ## 8. Service `PostService.CreateAsync`, opening lines
@@ -421,9 +429,7 @@ Path of the request when a post is published with a scheduled time.
 
 ## 12. Repository `PostRepository.CreateAsync`
 
-- **Was there, changed.** Return type changed from nullable to non-nullable: [PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19). The only path that returned null was the unique-violation catch below; the branch drops the index it caught, and the catch with it, so the method can no longer return null.
-- **Removed in this branch.** The unique-violation catch: it caught a second post for the same day hitting the daily unique index and returned null. The index is dropped, and the only uniqueness left is the primary key on a freshly generated id, which cannot collide.
-- **Removed in this branch.** The Npgsql[³¹](post-scheduling/31-Npgsql.md) import and the null check in the service. The import served only the exception types in the catch; the null check handled the catch's null, which can no longer come back.
+- **Removed in this branch.** The unique-violation catch from Npgsql[³¹](post-scheduling/31-Npgsql.md), so `CreateAsync` now always returns the saved row. Before, a second post for the same day hit the daily unique index, and the catch turned that into a null. The branch drops the index, and the only uniqueness left is the primary key on a freshly generated id, which cannot collide. Three more edits follow from this one: the return type narrows from nullable to non-nullable ([PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19)), the service's null check goes, and so does the Npgsql import, which served only the exception types in the catch.
 
 ## 13. Service `PostService.CreateAsync`, the change notification, then the 201
 
