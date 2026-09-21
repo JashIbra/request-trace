@@ -196,8 +196,12 @@ about. The labels are translated with the rest of the trace.
 
 - **New in this branch.** Break it down fully: what it does, why this way, what would happen without
   it.
-- **Was there, unchanged.** One bullet, and only as far as the new code needs: say **how the new
-  code uses it** — that is the answer to "why are we even in this file".
+- **Was there, unchanged.** One short bullet that **opens with why it is in the trace** — what in
+  the new behaviour depends on it, which refusal happens there, or that the route starts here — and
+  then only as much mechanism as backs that up: "Mentioned because the reminder at the chosen time
+  depends on it: its list has no upper bound, so a post a month out is in it too, and the server
+  needs nothing new." That is the answer to "why are we even in this file", and the reader should
+  not have to work it out.
 - **Was there, changed.** Say what the diff did to it — a parameter added, a return type narrowed,
   a body rewritten — **and why**, in the same bullet: "non-nullable now, because the only path that
   returned null was the unique-violation catch, and the index it caught is gone".
@@ -358,8 +362,8 @@ Path of the request when a post is published with a scheduled time.
 
 ## 1. Client, `ComposeScreenComponent.onPublishClicked()` → `performPublish()`
 
-- **Was there, unchanged.** [ComposeScreenComponent.kt:214](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L214) and [:266](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L266): the tap reaches `onPublishClicked()`, which hands the draft to `performPublish()` for the send.
-- **Was there, unchanged.** `performPublish()` validates the draft before sending, and the "when" field is deliberately outside that check — the publish button never depends on it.
+- **Was there, unchanged.** Where the route starts: the tap reaches `onPublishClicked()` at [ComposeScreenComponent.kt:214](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L214), which hands the draft to `performPublish()` at [:266](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L266) for the send.
+- **Was there, unchanged.** Mentioned because the new "when" field is outside `performPublish()`'s check: the publish button never depends on it.
 
 ## 2. Same component, the clock and the timer
 
@@ -384,8 +388,7 @@ Path of the request when a post is published with a scheduled time.
 
 ## 5. `POST /api/posts`
 
-- **Was there, unchanged.** [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), Ktor[¹⁰](post-scheduling/10-Ktor.md) with the app-wide `Json` instance.
-- **Was there, unchanged.** `expectSuccess = true`[¹¹](post-scheduling/11-expectSuccess.md) — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
+- **Was there, unchanged.** Mentioned because this is how the new 400 reaches the writer: Ktor[¹⁰](post-scheduling/10-Ktor.md) sends the request at [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), and `expectSuccess = true`[¹¹](post-scheduling/11-expectSuccess.md) turns any non-2xx answer, the new 400 included, into an exception the app shows as an error.
 
 ## 6. Validator `CreatePostRequestValidator` → 400
 
@@ -404,7 +407,7 @@ Path of the request when a post is published with a scheduled time.
 ## 8. Service `PostService.CreateAsync`, opening lines
 
 - **Was there, changed.** Return type changed to the response DTO, because the result wrapper only existed to carry an outcome for the controller, and the outcomes are gone: [PostService.cs:58](../../Application/Services/PostService.cs#L58).
-- **Was there, unchanged.** The author lookup and the timezone resolution: zone from the profile, else the account's country, else the platform default.
+- **Was there, unchanged.** Mentioned because the new day is read in this zone: the author lookup and the timezone resolution take it from the profile, else the account's country, else the platform default.
 - **Removed in this branch.** Reading the `PublishDelayHours` setting and the settings dependency — the writer now picks the moment, so there is no fixed "goes live in N hours" delay left to read.
 
 ## 9. Same method, `PublishMomentUtc`
@@ -439,7 +442,7 @@ After the request:
 
 ## 14. `PostRepository.GetVisibleForFeedAsync`
 
-- **Was there, unchanged.** [PostRepository.cs:28](../../Infrastructure/Repositories/PostRepository.cs#L28); it carries more now — it alone hides a post scheduled for the day after tomorrow.
+- **Was there, unchanged.** Mentioned because it alone hides a post scheduled for the day after tomorrow: [PostRepository.cs:28](../../Infrastructure/Repositories/PostRepository.cs#L28).
 
 ## 15. `QuietHoursRescheduler` and `SetPublishAtAsync`
 
