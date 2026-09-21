@@ -28,12 +28,12 @@ is the code here at all.
 
 ## Notes
 
-12. FluentValidation — a third-party .NET library for checking incoming data: the rules are written
-    as code in a validator class rather than as attributes on the request's properties.
-14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for checking
-    incoming data. Finds every validator class in the assembly and registers them in the
+12. FluentValidation — a third-party .NET library for validating objects: the rules are written as
+    code in a validator class rather than as attributes on the properties.
+14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for validating
+    objects against rules written as code. Finds every validator class in the assembly and registers them in the
     dependency-injection container.
-16. `RuleFor` — a method of FluentValidation, the library for checking incoming data. Starts a rule
+16. `RuleFor` — a method of FluentValidation, the library for validating objects against rules written as code. Starts a rule
     for one property; every check chained after it applies to that property.
 ````
 

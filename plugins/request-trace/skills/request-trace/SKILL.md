@@ -127,11 +127,17 @@ this order:
 
 1. **What it is.** Its kind — method, class, attribute, setting, type, operator, language feature,
    column type, standard — and where it comes from, with that source's purpose in a few words: "a
-   method of FluentValidation, a library for checking incoming data"; "an attribute from ASP.NET
+   method of FluentValidation, a library for validating objects against rules written as code"; "an attribute from ASP.NET
    Core, Microsoft's web framework"; "a function from the Kotlin standard library". The kind tells
    the reader what sort of thing they are looking at; the source and its purpose tell them where it
    lives and why it exists.
 2. **What it does** — one plain sentence, in general terms.
+
+**The purpose is the source's own, not this project's.** "FluentValidation, a library for checking
+incoming request data" describes how one backend happens to wire it, not what it is — the library
+validates any object, wherever it came from. Write the general purpose in the note; what this
+project does with it belongs in the bullet. A reader who meets the library again elsewhere must not
+come away with a wrong idea of it.
 
 **Every note stands on its own.** The reader arrives at one note from one marker and will not go
 hunting for a second, so the source's purpose is repeated in every note that cites it — a few words,
@@ -391,15 +397,15 @@ After the request:
 9. kotlinx.serialization — a JetBrains library that turns Kotlin objects into JSON and back.
 10. Ktor — a JetBrains library for HTTP in Kotlin; on the client it is what sends the request.
 11. `expectSuccess` — a setting of the Ktor HTTP client. When `true`, a response with a non-2xx status throws an exception instead of being returned as an ordinary response.
-12. FluentValidation — a third-party .NET library for checking incoming data: the rules are written as code in a validator class rather than as attributes on the request's properties.
+12. FluentValidation — a third-party .NET library for validating objects: the rules are written as code in a validator class rather than as attributes on the properties, and the object can come from anywhere.
 13. ASP.NET Core — Microsoft's web framework for .NET: it receives HTTP requests, turns their bodies into objects and calls controller methods.
-14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for checking incoming data. Finds every validator class in the assembly that holds the given type and registers them in the dependency-injection container.
+14. `AddValidatorsFromAssemblyContaining` — a method of FluentValidation, the library for validating objects against rules written as code. Finds every validator class in the assembly that holds the given type and registers them in the dependency-injection container.
 15. `AddFluentValidationAutoValidation` — a method of FluentValidation's integration with ASP.NET Core, the web framework. Makes the framework run the matching validator on each incoming request body, before the controller method.
-16. `RuleFor` — a method of FluentValidation, the library for checking incoming data. Starts a rule for one property; every check chained after it applies to that property.
+16. `RuleFor` — a method of FluentValidation, the library for validating objects against rules written as code. Starts a rule for one property; every check chained after it applies to that property.
 17. Expression tree — a C# language feature. When a lambda goes to a parameter of type `Expression<...>`, the compiler passes a description of its code instead of compiled code, so the receiver can read, for instance, which property it touches.
-18. `Must` — a method of FluentValidation, the library for checking incoming data. Adds a custom check to a rule: a function that returns `true` when the value is valid.
+18. `Must` — a method of FluentValidation, the library for validating objects against rules written as code. Adds a custom check to a rule: a function that returns `true` when the value is valid.
 19. Property pattern (`is { ... }`, `is not { ... }`) — a C# language feature, part of pattern matching. Tests that a value is non-null and that its listed properties match; the empty form `is { } x` only checks for non-null and puts the value in `x`.
-20. `WithMessage` — a method of FluentValidation, the library for checking incoming data. Sets the error text returned when the preceding check fails.
+20. `WithMessage` — a method of FluentValidation, the library for validating objects against rules written as code. Sets the error text returned when the preceding check fails.
 21. ModelState — an object from ASP.NET Core, Microsoft's web framework. Records whether the current request's data was read and validated successfully, with the errors if not.
 22. `[ApiController]` — an attribute from ASP.NET Core, Microsoft's web framework. Among other things, makes the framework answer 400 itself when ModelState has errors, without calling the controller method.
 23. `ValidationProblemDetails` — a class from ASP.NET Core, Microsoft's web framework. The standard JSON shape of a validation error: a title, a status, and an `errors` object keyed by field name.
