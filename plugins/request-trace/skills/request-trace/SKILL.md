@@ -88,7 +88,8 @@ fact per line.
   line, which is the whole point — the reader compares against the code instead of scrolling for
   it; one that does not still opens the file. Never `File.cs:124` as the target: outside a terminal
   that names a file that does not exist.
-- Two to six bullets. One means the step is not a step; seven means it is two.
+- Two to six bullets for a step with new or changed code; seven means it is two. A step that is
+  on the route but unchanged gets one.
 - No paragraphs inside an entry. A wall of prose under a number reads as mush; that is what the
   bullets are for.
 
@@ -135,7 +136,7 @@ name gets a footnote.
 **What gets one:** any name or construct whose definition is not in the project — the language
 itself, its standard library, a framework, a third-party library, a database, a format standard.
 The test is simple: if searching the project will not find where it is defined, it gets a note.
-The project's own names never do; the three states below cover them.
+The project's own names never do; the states below cover them.
 
 **The marker** is a Unicode superscript number directly after the name, at its first mention, and
 it is a link to that note's own file: `` `RuleFor`[¹⁶](post-scheduling/16-RuleFor.md) ``. Every note
@@ -188,25 +189,40 @@ can stay on the mechanics of this request.
 Every name this branch introduced gets its own line: function, variable, field, constant,
 parameter. Those are exactly the questions the trace exists to answer.
 
-And every name carries one of three states. Without the mark the reader goes hunting in the diff
-for something that is not there — or worse, walks past a line whose meaning moved.
+**Every bullet opens with its state, in bold — no bullet without one.** Without the mark the reader
+goes hunting in the diff for something that is not there, or walks past a line whose meaning moved.
+A bullet that only explains a consequence of the one above takes the state of the code it talks
+about. The labels are translated with the rest of the trace.
 
-**1. Introduced in this branch.** Break it down fully: what it does, why this way, what would
-happen without it.
+- **New in this branch.** Break it down fully: what it does, why this way, what would happen without
+  it.
+- **Was there, unchanged.** One bullet, and only as far as the new code needs: say **how the new
+  code uses it** — that is the answer to "why are we even in this file".
+- **Was there, changed.** Say what the diff did to it — a parameter added, a return type narrowed,
+  a body rewritten — right after the label.
+- **Was there, now means something else.** The dangerous one, and the strongest candidate for a
+  line. The diff is tiny or absent while the meaning has moved, and that is what review misses most
+  often. Say it plainly: what it meant before, what it means now, and what changed for everyone
+  reading that name.
+- **Removed in this branch.** What went, and why nothing needs it any more.
 
-**2. Was there, unchanged.** Explain only as far as the new code needs. A full tour of an
-untouched file is not part of a trace. But do say **how the new code uses it** — that is the
-answer to "why are we even in this file".
-
-**3. Was there, but now means something else.** The dangerous one, and the strongest candidate for
-a line. The diff is tiny or absent while the meaning has moved, and that is what review misses
-most often. Say it plainly: what it meant before, what it means now, and what changed for everyone
-reading that name.
-
-Examples of the third kind: a column that kept its name but now records the day work is *placed*
+Examples of the fourth kind: a column that kept its name but now records the day work is *placed*
 on rather than the day it was handed out; a guard call that is byte-identical but now asks about a
 different day; a wire field that survives but always answers zero, kept only for app versions
 already in people's hands.
+
+**Unchanged code earns its place, or it goes.** Keep an unchanged place only when the new behaviour
+depends on it (the client turns the new 400 into an error, the push service arms a reminder for the
+new instant), when a refusal happens there, or when the route would break without it — and then in
+one bullet, not a breakdown. Code that merely sits on the path and does not bear on the feature is
+cut, and so are the unchanged details of a step you keep: how a sheet of unrelated warnings works, how
+a range of pages is filled in, which flags an enum can carry. A reviewer reads every line you leave in
+looking for what changed.
+
+**Decide every state from git, never from memory** — not even for code you wrote an hour ago:
+`git diff <base>...HEAD -- <file>` says whether the branch touched it, `git show <base>:<file>` shows
+what was there. A file created in the branch and edited again in a later commit of the same branch is
+still new. Before handing the file over, check that every dashed bullet starts with a bold label.
 
 ## Start with the human's action, not the endpoint
 
@@ -321,110 +337,104 @@ Path of the request when a post is published with a scheduled time.
 
 ## 1. Client, `ComposeScreenComponent.onPublishClicked()` → `performPublish()`
 
-- Was there before the branch, unchanged: [ComposeScreenComponent.kt:214](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L214) and [:266](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L266).
-- The tap arrives as a `Publish` event through `onEvent`; `onPublishClicked()` first checks the draft for empty required blocks and raises a sheet when it finds any.
-- `performPublish()` re-validates: a network wait sits between the tap and the send, and the editor stays live throughout.
-- The "when" field is deliberately outside that check — the publish button never depends on it.
+- **Was there, unchanged.** [ComposeScreenComponent.kt:214](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L214) and [:266](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L266): the tap reaches `onPublishClicked()`, which hands the draft to `performPublish()` for the send.
+- **Was there, unchanged.** `performPublish()` validates the draft before sending, and the "when" field is deliberately outside that check — the publish button never depends on it.
 
 ## 2. Same component, the clock and the timer
 
-- `clock: Clock = Clock.System`[¹](post-scheduling/01-Clock.md) introduced in this branch, [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
-- `scheduledMoments` introduced in this branch, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — a mirror of the chosen instants, because the state holder is not a kotlinx.coroutines[²](post-scheduling/02-kotlinx.coroutines.md) `Flow`[³](post-scheduling/03-Flow.md).
-- `expireScheduleWhenItArrives()` introduced in this branch, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](post-scheduling/04-flatMapLatest.md) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
-- `dropMomentsAlreadyGoneBy()` introduced in this branch, [:151](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
+- **New in this branch.** `clock: Clock = Clock.System`[¹](post-scheduling/01-Clock.md), [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
+- **New in this branch.** `scheduledMoments`, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — a mirror of the chosen instants, because the state holder is not a kotlinx.coroutines[²](post-scheduling/02-kotlinx.coroutines.md) `Flow`[³](post-scheduling/03-Flow.md).
+- **New in this branch.** `expireScheduleWhenItArrives()`, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](post-scheduling/04-flatMapLatest.md) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
+- **New in this branch.** `dropMomentsAlreadyGoneBy()`, [:151](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
 
 ## 3. Same component, handling `PublishAtChanged`
 
-- The event was introduced in this branch, [ComposeScreenEvent.kt:34](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenEvent.kt#L34).
-- Handler at [ComposeScreenComponent.kt:198](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L198): `takeIf { it != null && it > clock.now() }`[⁵](post-scheduling/05-takeIf.md) — a past instant is never stored at all, or the field would show a time in the past for a frame.
-- `PostDraft.publishAt` introduced in this branch, [PostDraft.kt:22](../../app/src/commonMain/kotlin/com/example/posts/PostDraft.kt#L22); `null` means "as soon as it is sent".
-- `SavedDraft.publishAtEpochMillis` introduced in this branch, [:402](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L402) — the choice survives process death, and a stale one is corrected on the next resume.
+- **New in this branch.** The `PublishAtChanged` event, [ComposeScreenEvent.kt:34](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenEvent.kt#L34).
+- **New in this branch.** Handler at [ComposeScreenComponent.kt:198](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L198): `takeIf { it != null && it > clock.now() }`[⁵](post-scheduling/05-takeIf.md) — a past instant is never stored at all, or the field would show a time in the past for a frame.
+- **New in this branch.** `PostDraft.publishAt`, [PostDraft.kt:22](../../app/src/commonMain/kotlin/com/example/posts/PostDraft.kt#L22); `null` means "as soon as it is sent".
+- **New in this branch.** `SavedDraft.publishAtEpochMillis`, [:402](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L402) — the choice survives process death, and a stale one is corrected on the next resume.
 
 ## 4. Client, `PostsRepositoryImpl.submitDraft()`
 
-- Was there before the branch; one argument added: [PostsRepositoryImpl.kt:141](../../app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt#L141).
-- `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](post-scheduling/06-kotlin.time.Instant.md) is ISO-8601[⁷](post-scheduling/07-ISO-8601.md) in UTC with a trailing `Z`, exactly the shape the server demands.
-- The field `publishAt: String? = null` introduced in this branch, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](post-scheduling/08-encodeDefaults.md) in kotlinx.serialization[⁹](post-scheduling/09-kotlinx.serialization.md), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
-- Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
+- **Was there, changed.** One argument added: [PostsRepositoryImpl.kt:141](../../app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt#L141).
+- **New in this branch.** `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](post-scheduling/06-kotlin.time.Instant.md) is ISO-8601[⁷](post-scheduling/07-ISO-8601.md) in UTC with a trailing `Z`, exactly the shape the server demands.
+- **New in this branch.** The field `publishAt: String? = null`, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](post-scheduling/08-encodeDefaults.md) in kotlinx.serialization[⁹](post-scheduling/09-kotlinx.serialization.md), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
+- **New in this branch.** Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
 
 ## 5. `POST /api/posts`
 
-- Was there before the branch: [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), Ktor[¹⁰](post-scheduling/10-Ktor.md) with the app-wide `Json` instance.
-- `expectSuccess = true`[¹¹](post-scheduling/11-expectSuccess.md) — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
+- **Was there, unchanged.** [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), Ktor[¹⁰](post-scheduling/10-Ktor.md) with the app-wide `Json` instance.
+- **Was there, unchanged.** `expectSuccess = true`[¹¹](post-scheduling/11-expectSuccess.md) — any non-2xx response becomes an exception and is mapped to an app error, including the new 400.
 
 ## 6. Validator `CreatePostRequestValidator` → 400
 
-- File introduced in this branch, a FluentValidation[¹²](post-scheduling/12-FluentValidation.md) validator class; the rule sits at [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
-- No code in the project calls it — ASP.NET Core[¹³](post-scheduling/13-ASP.NET-Core.md) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling/14-AddValidatorsFromAssemblyContaining.md) registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling/15-AddFluentValidationAutoValidation.md) makes the framework run it on each request, before the controller's first line.
-- `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling/16-RuleFor.md) — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree[¹⁷](post-scheduling/17-Expression-tree.md) — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
-- `.Must(...)`[¹⁸](post-scheduling/18-Must.md) is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`[¹⁹](post-scheduling/19-Property-pattern.md) is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
-- `.WithMessage(...)`[²⁰](post-scheduling/20-WithMessage.md) states both the mistake and the accepted form instead of a generic "invalid request".
-- On failure ModelState[²¹](post-scheduling/21-ModelState.md) is invalid and `[ApiController]`[²²](post-scheduling/22-note.md) returns the 400 with `ValidationProblemDetails`[²³](post-scheduling/23-ValidationProblemDetails.md) on its own.
+- **New in this branch.** The file, a FluentValidation[¹²](post-scheduling/12-FluentValidation.md) validator class; the rule sits at [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
+- **Was there, unchanged.** No code in the project calls it — ASP.NET Core[¹³](post-scheduling/13-ASP.NET-Core.md) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling/14-AddValidatorsFromAssemblyContaining.md) registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling/15-AddFluentValidationAutoValidation.md) makes the framework run it on each request, before the controller's first line.
+- **New in this branch.** `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling/16-RuleFor.md) — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree[¹⁷](post-scheduling/17-Expression-tree.md) — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
+- **New in this branch.** `.Must(...)`[¹⁸](post-scheduling/18-Must.md) is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`[¹⁹](post-scheduling/19-Property-pattern.md) is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
+- **New in this branch.** `.WithMessage(...)`[²⁰](post-scheduling/20-WithMessage.md) states both the mistake and the accepted form instead of a generic "invalid request".
+- **Was there, unchanged.** On failure ModelState[²¹](post-scheduling/21-ModelState.md) is invalid and `[ApiController]`[²²](post-scheduling/22-note.md) returns the 400 with `ValidationProblemDetails`[²³](post-scheduling/23-ValidationProblemDetails.md) on its own.
 
 ## 7. Controller `PostsController.Create`
 
-- Was there before the branch, rewritten to a single expression: [PostsController.cs:52](../../Presentation/Controllers/PostsController.cs#L52).
-- `PublishOutcome` and its result wrapper were deleted outright — with the daily posting cap gone they carried one member.
-- The 409 "already posted today" and the 500 "not configured" arms went with them.
-- `GetPostingAllowance` at [:31](../../Presentation/Controllers/PostsController.cs#L31) now means something else: synchronous, calls no service, always answers "allowed" — kept only for app versions already shipped.
+- **Was there, changed.** Rewritten to a single expression: [PostsController.cs:52](../../Presentation/Controllers/PostsController.cs#L52).
+- **Removed in this branch.** `PublishOutcome` and its result wrapper — with the daily posting cap gone they carried one member.
+- **Removed in this branch.** The 409 "already posted today" and the 500 "not configured" arms went with them.
+- **Was there, now means something else.** `GetPostingAllowance` at [:31](../../Presentation/Controllers/PostsController.cs#L31): synchronous, calls no service, always answers "allowed" — kept only for app versions already shipped.
 
 ## 8. Service `PostService.CreateAsync`, opening lines
 
-- Return type changed to the response DTO: [PostService.cs:58](../../Application/Services/PostService.cs#L58).
-- The author lookup and the timezone resolution were there before: zone from the profile, else the account's country, else the platform default.
-- Reading the `PublishDelayHours` setting and the settings dependency were removed — the "goes live in N hours" delay no longer exists.
+- **Was there, changed.** Return type changed to the response DTO: [PostService.cs:58](../../Application/Services/PostService.cs#L58).
+- **Was there, unchanged.** The author lookup and the timezone resolution: zone from the profile, else the account's country, else the platform default.
+- **Removed in this branch.** Reading the `PublishDelayHours` setting and the settings dependency — the "goes live in N hours" delay no longer exists.
 
 ## 9. Same method, `PublishMomentUtc`
 
-- Method introduced in this branch, [:121](../../Application/Services/PostService.cs#L121); the constant `PastInstantWorthReporting` at [:33](../../Application/Services/PostService.cs#L33).
-- `request.PublishAt is not { } requestedAt`[¹⁹](post-scheduling/19-Property-pattern.md) — a null check and a capture in one expression; no field, return "now".
-- `ToUniversalTime()`[²⁴](post-scheduling/24-ToUniversalTime.md) rather than `SpecifyKind`[²⁵](post-scheduling/25-SpecifyKind.md) — an offset such as `+05:00` arrives as `Kind = Local`[²⁶](post-scheduling/26-DateTimeKind.md) and names a different instant than its digits read; the column is a PostgreSQL[²⁷](post-scheduling/27-PostgreSQL.md) `timestamptz`[²⁸](post-scheduling/28-timestamptz.md) and rejects a non-UTC kind outright.
-- A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`[²⁹](post-scheduling/29-Log.Warning.md) from Serilog[³⁰](post-scheduling/30-Serilog.md) fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
+- **New in this branch.** The method, [:121](../../Application/Services/PostService.cs#L121); the constant `PastInstantWorthReporting` at [:33](../../Application/Services/PostService.cs#L33).
+- **New in this branch.** `request.PublishAt is not { } requestedAt`[¹⁹](post-scheduling/19-Property-pattern.md) — a null check and a capture in one expression; no field, return "now".
+- **New in this branch.** `ToUniversalTime()`[²⁴](post-scheduling/24-ToUniversalTime.md) rather than `SpecifyKind`[²⁵](post-scheduling/25-SpecifyKind.md) — an offset such as `+05:00` arrives as `Kind = Local`[²⁶](post-scheduling/26-DateTimeKind.md) and names a different instant than its digits read; the column is a PostgreSQL[²⁷](post-scheduling/27-PostgreSQL.md) `timestamptz`[²⁸](post-scheduling/28-timestamptz.md) and rejects a non-UTC kind outright.
+- **New in this branch.** A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`[²⁹](post-scheduling/29-Log.Warning.md) from Serilog[³⁰](post-scheduling/30-Serilog.md) fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
 
 ## 10. Same method, the quota check → 409
 
-- The calls themselves were there before the branch, [:71–74](../../Application/Services/PostService.cs#L71).
-- The second check now means something else: it used to ask about the day a few hours of delay landed on, and now asks about the day the writer named, which may be weeks out.
-- The quota window is loaded once with no upper bound, so a post aimed far into the future is still measured against the right day.
-- Both throw; an exception filter turns them into a 409 carrying a code and the day that is already full.
+- **Was there, unchanged.** The calls themselves, [:71–74](../../Application/Services/PostService.cs#L71).
+- **Was there, now means something else.** The second check: it used to ask about the day a few hours of delay landed on, and now asks about the day the writer named, which may be weeks out.
+- **Was there, unchanged.** The quota window is loaded once with no upper bound, so a post aimed far into the future is still measured against the right day.
+- **Was there, unchanged.** Both throw; an exception filter turns them into a 409 carrying a code and the day that is already full.
 
 ## 11. Same method, building the row
 
-- `PublishOnDay` was there before the branch but now means something else: [:88](../../Application/Services/PostService.cs#L88) — it used to be the day the post was written, and is now the day it goes live, read in the author's zone.
-- The test-mode branch that nulled it is gone — the null existed only to dodge a unique index that this branch drops.
-- `CreatedAt` and `PublishAt` can now be weeks apart, which was impossible before.
+- **Was there, now means something else.** `PublishOnDay`, [:88](../../Application/Services/PostService.cs#L88) — it used to be the day the post was written, and is now the day it goes live, read in the author's zone.
+- **Removed in this branch.** The test-mode branch that nulled it — the null existed only to dodge a unique index that this branch drops.
+- **Was there, now means something else.** `CreatedAt` and `PublishAt` can now be weeks apart, which was impossible before.
 
 ## 12. Repository `PostRepository.CreateAsync`
 
-- Return type changed from nullable to non-nullable: [PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19).
-- The unique-violation catch was removed: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
-- The Npgsql[³¹](post-scheduling/31-Npgsql.md) import and the null branch in the service went with it.
+- **Was there, changed.** Return type changed from nullable to non-nullable: [PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19).
+- **Removed in this branch.** The unique-violation catch: it guarded the daily cap, and the only uniqueness left is the primary key on a freshly generated id.
+- **Removed in this branch.** The Npgsql[³¹](post-scheduling/31-Npgsql.md) import and the null branch in the service went with it.
 
 ## 13. Service `PostService.CreateAsync`, the change notification, then the 201
 
-- The notification was there before the branch, unchanged: [PostService.cs:103](../../Application/Services/PostService.cs#L103), but it matters more now — the instant can be far off and subscribers' devices must learn about it in advance.
-- The target enum is `[Flags]`[³²](post-scheduling/32-note.md), so one ping can name several parts of the client's copy at once instead of two pings that cancel each other's fetch.
-- In the response the instant is stamped `Kind = Utc`, or JSON omits the trailing `Z` and the client's parse fails.
+- **Was there, unchanged.** The notification, [PostService.cs:103](../../Application/Services/PostService.cs#L103); it matters more now — the instant can be far off and subscribers' devices must learn about it in advance.
 
 After the request:
 
 ## 14. `PostRepository.GetVisibleForFeedAsync`
 
-- Was there before the branch, unchanged: [PostRepository.cs:28](../../Infrastructure/Repositories/PostRepository.cs#L28), but it carries more now — it alone hides a post scheduled for the day after tomorrow.
-- Filters on "not deleted" plus "publish at or before now"; a flag lifts the gate so the author's own drafts view can show what is still pending.
+- **Was there, unchanged.** [PostRepository.cs:28](../../Infrastructure/Repositories/PostRepository.cs#L28); it carries more now — it alone hides a post scheduled for the day after tomorrow.
 
 ## 15. `QuietHoursRescheduler` and `SetPublishAtAsync`
 
-- `SetPublishAtAsync` gained a third parameter and now writes three columns: [PostRepository.cs:96](../../Infrastructure/Repositories/PostRepository.cs#L96) — the instant, the day it lands on, and a reset of the "already announced" flag.
-- The parameter is required rather than defaulted, so the compiler points at the one call site; a default would let the instant and the day drift apart in silence.
-- The author's zone is threaded down to the write, because only the caller knows whose calendar the day is read in.
-- The undo record is written before the row moves: a record with the row still in place is harmless, while a moved row nobody recorded could never be put back.
+- **Was there, changed.** `SetPublishAtAsync` gained a third parameter and now writes three columns: [PostRepository.cs:96](../../Infrastructure/Repositories/PostRepository.cs#L96) — the instant, the day it lands on, and a reset of the "already announced" flag.
+- **New in this branch.** The parameter is required rather than defaulted, so the compiler points at the one call site; a default would let the instant and the day drift apart in silence.
+- **Was there, changed.** The author's zone is threaded down to the write, because only the caller knows whose calendar the day is read in.
 
 ## 16. Migration `DropDailyPostUniqueIndex`
 
-- Introduced in this branch: [DropDailyPostUniqueIndex.cs:24](../../Infrastructure/Migrations/DropDailyPostUniqueIndex.cs#L24).
-- `DROP INDEX IF EXISTS`[³³](post-scheduling/33-DROP-INDEX-IF-EXISTS.md) as raw SQL rather than the `DropIndex`[³⁴](post-scheduling/34-DropIndex.md) of Entity Framework Core[³⁵](post-scheduling/35-Entity-Framework-Core.md) migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
-- `Down()`[³⁶](post-scheduling/36-Down.md) recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
+- **New in this branch.** [DropDailyPostUniqueIndex.cs:24](../../Infrastructure/Migrations/DropDailyPostUniqueIndex.cs#L24).
+- **New in this branch.** `DROP INDEX IF EXISTS`[³²](post-scheduling/32-DROP-INDEX-IF-EXISTS.md) as raw SQL rather than the `DropIndex`[³³](post-scheduling/33-DropIndex.md) of Entity Framework Core[³⁴](post-scheduling/34-Entity-Framework-Core.md) migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
+- **New in this branch.** `Down()`[³⁵](post-scheduling/35-Down.md) recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
 
 ---
 
@@ -465,8 +475,7 @@ them.
 29. `Log.Warning` — a method of Serilog, a logging library for .NET. Writes a warning-level entry through the application-wide logger.
 30. Serilog — a logging library for .NET.
 31. Npgsql — the .NET driver for PostgreSQL, the library through which .NET code talks to the database; `PostgresErrorCodes.UniqueViolation` is its code for an insert that breaks a unique index.
-32. `[Flags]` — an attribute from the .NET standard library, placed on an enum. Marks its values as bits that can be combined, so one variable can hold several at once.
-33. `DROP INDEX IF EXISTS` — an SQL command in PostgreSQL, the database. Removes an index, and does nothing instead of failing when the index is not there.
-34. `DropIndex` — a method of Entity Framework Core migrations; Entity Framework Core is .NET's library for working with a database through C# objects. Emits a plain `DROP INDEX`, which fails when the index is missing.
-35. Entity Framework Core — .NET's library for working with a database through C# objects; its migrations describe each schema change as code.
-36. `Down()` — a method of Entity Framework Core migrations, .NET's library for working with a database. Undoes the migration when the database is rolled back to an earlier version.
+32. `DROP INDEX IF EXISTS` — an SQL command in PostgreSQL, the database. Removes an index, and does nothing instead of failing when the index is not there.
+33. `DropIndex` — a method of Entity Framework Core migrations; Entity Framework Core is .NET's library for working with a database through C# objects. Emits a plain `DROP INDEX`, which fails when the index is missing.
+34. Entity Framework Core — .NET's library for working with a database through C# objects; its migrations describe each schema change as code.
+35. `Down()` — a method of Entity Framework Core migrations, .NET's library for working with a database. Undoes the migration when the database is rolled back to an earlier version.

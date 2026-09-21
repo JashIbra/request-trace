@@ -59,9 +59,12 @@ footnote is also written to its own small file beside the trace, and the marker 
 
 - **The unit is a step, not a file.** One method can produce five consecutive entries; an untouched
   file still appears if the request goes through it.
-- **Every name is marked with one of three states** — introduced in this branch, already there and
-  unchanged, or *already there but now meaning something else*. The third is what review misses most
-  often: the diff is tiny or absent while the meaning has moved.
+- **Every bullet opens with its state, in bold** — new in this branch, unchanged, changed, *now
+  meaning something else*, or removed — decided from the git diff, not from memory. The fourth is
+  what review misses most often: the diff is tiny or absent while the meaning has moved.
+- **Unchanged code only when it matters.** An untouched place stays only if the new behaviour
+  depends on it, a refusal happens there, or the route would break without it — and then in one
+  line. Everything else is noise a reviewer has to read past.
 - **Everything the project did not write gets a footnote.** `RuleFor`, `flatMapLatest`,
   `encodeDefaults`, `timestamptz` — a superscript number at the first mention, and a numbered note at
   the end: what kind of thing it is, which library it belongs to and what that library is for, and
