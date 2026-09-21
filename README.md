@@ -18,8 +18,10 @@ is the code here at all.
 - No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining` registers it
   at startup, and `AddFluentValidationAutoValidation` makes the framework run it on each request,
   before the controller's first line.
-- `RuleFor(x => x.PublishAt)` names the property. The lambda is passed as an expression tree, so
-  the library reads the property *name* out of it; that name becomes the key in the 400 body.
+- `RuleFor(x => x.PublishAt)` — the checks chained after it apply to the `PublishAt` field. The
+  compiler hands the library a description of the lambda rather than its code — an expression tree —
+  so the library reads the field's name without running anything and writes it into the 400 body as
+  `publish_at`, telling the client which field is wrong.
 - `.Must(...)` is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`
   is a property pattern; it does not match on `null`, so an absent field passes.
 - On failure ModelState is invalid and `[ApiController]` returns the 400 on its own.

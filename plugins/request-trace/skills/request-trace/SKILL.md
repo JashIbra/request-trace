@@ -98,6 +98,13 @@ Always break down:
 
 Do not break down: a plain assignment, a getter call, the order of arguments.
 
+**No vague verbs.** "Specifies the property", "handles the request", "is responsible for", "takes
+care of" — each of these leaves the reader asking *meaning what?*. Say what concretely happens and
+where it shows up: not "`RuleFor` specifies the property" but "the checks after it apply to the
+`PublishAt` field; the library reads that field's name out of the lambda and puts it in the 400
+body as `publish_at`, so the client sees which field is wrong". If a term of art is unavoidable —
+an expression tree — explain it in the same line, in plain words.
+
 ## New in this branch comes first
 
 Every name this branch introduced gets its own line: function, variable, field, constant,
@@ -259,7 +266,7 @@ Path of the request when a post is published with a scheduled time.
 
 - File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
 - No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining` registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation` makes the framework run it on each request, before the controller's first line.
-- `RuleFor(x => x.PublishAt)` names the property. The lambda is passed as an expression tree, so the library reads the property *name* out of it; that name becomes the key in the 400 body.
+- `RuleFor(x => x.PublishAt)` — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree — so the library reads the field's name without running anything, and writes it into the 400 body as `publish_at`, telling the client which field is wrong.
 - `.Must(...)` is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }` is a property pattern; it does not match on `null`, `is not` yields `true`, so an absent field passes.
 - `.WithMessage(...)` states both the mistake and the accepted form instead of a generic "invalid request".
 - On failure ModelState is invalid and `[ApiController]` returns the 400 with `ValidationProblemDetails` on its own.
