@@ -15,20 +15,31 @@ is the code here at all.
 ## 6. Validator `CreatePostRequestValidator` → 400
 
 - File introduced in this branch; the rule sits at [CreatePostRequestValidator.cs:14](Application/Validators/CreatePostRequestValidator.cs:14).
-- No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining` registers it
-  at startup, and `AddFluentValidationAutoValidation` makes the framework run it on each request,
+- No code in the project calls it — ASP.NET does: `AddValidatorsFromAssemblyContaining`¹⁰ registers it
+  at startup, and `AddFluentValidationAutoValidation`¹¹ makes the framework run it on each request,
   before the controller's first line.
-- `RuleFor(x => x.PublishAt)` — the checks chained after it apply to the `PublishAt` field. The
-  compiler hands the library a description of the lambda rather than its code — an expression tree —
+- `RuleFor(x => x.PublishAt)`¹² — the checks chained after it apply to the `PublishAt` field. The
+  compiler hands the library a description of the lambda rather than its code — an expression tree¹³ —
   so the library reads the field's name without running anything and writes it into the 400 body as
   `publish_at`, telling the client which field is wrong.
-- `.Must(...)` is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`
-  is a property pattern; it does not match on `null`, so an absent field passes.
-- On failure ModelState is invalid and `[ApiController]` returns the 400 on its own.
+- On failure ModelState¹⁷ is invalid and `[ApiController]`¹⁸ returns the 400 on its own.
+
+…
+
+## Notes
+
+10. `AddValidatorsFromAssemblyContaining` — FluentValidation. Scans the assembly that contains the
+    given type and registers every validator class it finds in the dependency-injection container.
+12. `RuleFor` — FluentValidation. Starts a rule for one property of the object being validated; the
+    checks chained after it apply to that property.
+13. Expression tree — a C# feature. When a lambda is passed to a parameter of type `Expression<...>`,
+    the compiler hands over a description of the lambda's code rather than compiled code, so the
+    receiver can read, for instance, which property it touches.
 ````
 
 Every entry carries a file and a line as a link, so the reader jumps straight to the code instead of
-scrolling for it.
+scrolling for it. Every name the project did not write — a library call, a language construct, a
+database type — carries a small superscript number pointing to a note at the end that says what it is.
 
 ## What it insists on
 
@@ -37,8 +48,9 @@ scrolling for it.
 - **Every name is marked with one of three states** — introduced in this branch, already there and
   unchanged, or *already there but now meaning something else*. The third is what review misses most
   often: the diff is tiny or absent while the meaning has moved.
-- **Library calls get explained.** `RuleFor`, `encodeDefaults`, `[Flags]`, `expectSuccess` — the
-  reader is not obliged to remember what each one does.
+- **Everything the project did not write gets a footnote.** `RuleFor`, `flatMapLatest`,
+  `encodeDefaults`, `timestamptz` — a superscript number at the first mention, and a numbered note at
+  the end saying what the thing is. The bullet keeps to how this code uses it.
 - **Refusal points are flagged with their status codes**, and so is anything running before the
   controller, which is easy to miss because nothing calls it explicitly.
 - **No diagrams, no preamble, no summary.** A sequence diagram of the same trace holds less and
