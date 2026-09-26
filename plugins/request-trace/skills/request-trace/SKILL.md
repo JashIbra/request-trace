@@ -115,6 +115,36 @@ Always break down:
 
 Do not break down: a plain assignment, a getter call, the order of arguments.
 
+**Write the picture, not the code in the reader's language.** Renaming the identifiers and declining
+them into a grammatical sentence teaches nothing — the reader can already read the line. Say what
+happens in words that would survive the code being rewritten: what is counted, what is compared with
+what, what the machine does instead of the obvious thing, and what the reader would see if it were
+wrong. Two marks that a bullet has slipped into translation: strike every identifier out of it and
+nothing is left, or it leans on "many", "a lot of", "expensive", "efficiently" — each of those is a
+place where a number belongs.
+
+**Put the numbers in.** Every count, limit, timeout and size the code knows goes into the text. A
+number is something the reader can check against what they see; a category is something they have to
+take on trust. Not "arms far fewer timers than there are posts" but "40 000 posts, some 900 distinct
+minutes between them, so 900 timers". Where a mechanism has a case that shows it, name the case — the
+query someone typed, the value that arrived, the day it lands on — rather than describing the shape of
+such cases.
+
+Not this:
+
+> `ArmReminders` walks the scheduled posts, groups them by `PublishAtUtc` truncated to the minute, and
+> arms one timer per group, so the timer count is the number of distinct minutes rather than of posts.
+
+This:
+
+> Two posts aimed at 20:00 do not need two alarms. Some 40 000 posts are scheduled at any time, and
+> they fall on about 900 different minutes of the coming week, so 900 alarms are set; when one goes
+> off, everything aimed at that minute is sent together. One alarm per post instead, and a writer who
+> queued a hundred posts would be holding a hundred alarms of their own.
+
+The symbols themselves stay — the reader needs them to find the line, and the heading and links are
+where they belong. What must not stay is a sentence whose whole content is those symbols.
+
 **No vague verbs.** "Specifies the property", "handles the request", "is responsible for", "takes
 care of" — each of these leaves the reader asking *meaning what?*. Say what concretely happens and
 where it shows up: not "`RuleFor` specifies the property" but "the checks after it apply to the
@@ -368,7 +398,7 @@ Path of the request when a post is published with a scheduled time.
 ## 2. Same component, the clock and the timer
 
 - **New in this branch.** `clock: Clock = Clock.System`[¹](post-scheduling/01-Clock.md), [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
-- **New in this branch.** `scheduledMoments`, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — a mirror of the chosen instants, because the state holder is not a kotlinx.coroutines[²](post-scheduling/02-kotlinx.coroutines.md) `Flow`[³](post-scheduling/03-Flow.md).
+- **New in this branch.** `scheduledMoments`, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — the chosen instants mirrored into a kotlinx.coroutines[²](post-scheduling/02-kotlinx.coroutines.md) `Flow`[³](post-scheduling/03-Flow.md), a value the timer below can watch. The draft the screen holds is a plain field: moving the time from 20:00 to 21:00 changes it silently, and nothing downstream would learn of it.
 - **New in this branch.** `expireScheduleWhenItArrives()`, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](post-scheduling/04-flatMapLatest.md) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
 - **New in this branch.** `dropMomentsAlreadyGoneBy()`, [:151](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
 
