@@ -356,6 +356,16 @@ the request body is assembled and what ends up in it. Only then the network call
 The client half is half the route. Without it there is no telling where a field in the body came
 from, or why it is absent in the other case.
 
+**That first entry is the earliest step, not the earliest fact.** Provenance does not stop at the
+tap. When the action starts on something the screen was given — a row, a card, an item of a list —
+name in one line the request that put it there and the endpoint that answered, before step 1. The
+reader's first question about a tap is where the tapped thing came from: an id travels out of a row,
+and the row travelled from somewhere. That line is not a step and does not open a second route; it
+also is not a "file off the path" and does not fall under cutting unchanged code — those rules are
+about what the request touches, and this is about what the reader is standing on. The same holds in
+reverse of the two-requests rule above: a request that ran *before* the one being traced is named in
+a line, not traced.
+
 If the client is not yours, or there is none, start at the endpoint and say so in one line.
 
 ## Always flag
