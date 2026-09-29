@@ -39,9 +39,18 @@ are words developers there genuinely use, while «ручка» and «залит�
 already know what the other means. Where a plain native word exists and carries the whole meaning,
 it wins: what I meant above was simply «запрос».
 
+The third way to get this wrong is a word-for-word translation that is an ordinary word in the
+reader's language already meaning something else. A database `row` written in Russian as «строка» is
+that: «строка» there means a line of text, or a `String`, so «строка живёт дольше файла» reads as
+nonsense about text, and the reader stops to ask what was meant. The thing is called «запись в
+таблице». The trap is that such a word passes every slang test — it is real, it is plain, it is not
+invented — and still points at the wrong object.
+
 Check before the sentence goes out, not after. Strike the unusual word and ask what someone outside
 development would picture: if they picture a door handle, it is the wrong word, and if you cannot
-say where you got the word from, you invented it.
+say where you got the word from, you invented it. For a translated term ask the other question too —
+what that word means on its own in that language — and if it already means something else in the
+same text, it is the wrong word however faithful the translation is.
 
 ## Write it to an HTML page
 
