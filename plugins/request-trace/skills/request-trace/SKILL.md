@@ -46,7 +46,17 @@ not into the chat. The chat gets one line: the file's path.
 
 Everything about *content* in this file is unchanged by the format: the same steps, the same dashed
 bullets, the same state labels. Drafting the text first and generating the page from it keeps the
-wording honest — the page is a rendering, not a rewrite. What the format buys is below.
+wording honest — the page is a rendering, not a rewrite. **Generate it from the trace text every
+time, never from a copy made earlier in the session:** a page rebuilt from a stale intermediate
+quietly restores line numbers that were corrected hours before, and the reader has no way to tell.
+What the format buys is below.
+
+**How the page reaches the reader: publish it as an Artifact and open it.** Publish the file, then
+open it by its URL — it unfolds as a panel inside the app, beside the conversation, fully rendered
+and with its script running. Handing over the same file as a file card instead sends it to the app's
+browser pane, with an address bar and tabs, which is not where someone reads a document; and a local
+file outside the project folder is drawn there as a static snapshot, with no script at all, so half
+the page is dead. Give the path in the chat as well, for the reader who wants the file itself.
 
 ## What the page shows that prose cannot
 
