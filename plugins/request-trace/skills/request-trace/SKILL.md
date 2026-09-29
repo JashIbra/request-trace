@@ -46,11 +46,12 @@ not into the chat. The chat gets one line: the file's path.
 The subject is one human action, followed through to the end. Take it in this order:
 
 1. **Named in the request** — "scheduling a post", "sending a chat message". Use that.
-2. **Not named — read the current branch.** `git log origin/main..HEAD` plus the diff: a branch is
+2. **Not named — read the current branch.** `git log <base>..HEAD` plus the diff: a branch is
    cut for one feature, and that feature is almost always what they want traced. Name what you
    picked on the first line, before the list: "Path of the request when a task is sent." One line,
    not a paragraph.
-3. **The branch says nothing** — you are on `main`, or the diff holds several unrelated edits.
+3. **The branch says nothing** — you are on the base branch itself, or the diff holds several
+   unrelated edits.
    Ask which action to walk. Do not guess: a trace of the wrong request is useless entirely, not
    partly.
 
@@ -275,6 +276,13 @@ cut, and so are the unchanged details of a step you keep: how a sheet of unrelat
 a range of pages is filled in, which flags an enum can carry. A reviewer reads every line you leave in
 looking for what changed.
 
+**`<base>` is the branch this one will be merged into, not `main`.** Many projects cut every branch
+from `develop` or a release branch; take the base from the project's own convention, confirm it with
+`git merge-base <base> HEAD`, and ask when more than one candidate fits. Get it wrong and everything
+that merely arrived from the base branch reads as new: the trace then labels untouched code "new in
+this branch" and sends the reader hunting through the diff for something that was never there —
+which is the one failure the labels exist to prevent.
+
 **Decide every state from git, never from memory** — not even for code you wrote an hour ago:
 `git diff <base>...HEAD -- <file>` says whether the branch touched it, `git show <base>:<file>` shows
 what was there. A file created in the branch and edited again in a later commit of the same branch is
@@ -331,7 +339,9 @@ the name finds it, the number lands on it directly.
 Two repositories in one trace: the file lives in one of them, and links into the other climb out of
 it — `../../../sibling-repo/...` from `.claude/traces/`. Before handing the file over, resolve every
 link against the file's folder and confirm the target exists and the line lands on the named
-symbol. Otherwise half the links will not open.
+symbol — **and that the line is not blank.** A number one or two past the declaration still points
+inside the file and still passes a file check, so proofreading by eye lets it through; the reader
+clicks and arrives at an empty line. Otherwise half the links will not open.
 
 ## Verify against the code, not from memory
 
