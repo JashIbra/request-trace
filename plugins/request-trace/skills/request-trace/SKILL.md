@@ -27,19 +27,52 @@ What is never translated: symbol names, file paths, HTTP verbs, status codes, li
 `RuleFor`, `encodeDefaults`, `POST /api/...`, `409` stay exactly as the code spells them, whatever
 the surrounding prose is.
 
-## Write it to a Markdown file
+## Write it to an HTML page
 
-The trace is long and is read next to the editor, a step at a time — so it goes into a `.md` file,
+The trace is long and is read beside the editor, a step at a time — so it goes into an `.html` file,
 not into the chat. The chat gets one line: the file's path.
 
 - **Where:** inside the repository the links start from, in a folder git ignores, so the file never
   shows up in the diff. Check with `git check-ignore`; `.claude/traces/` when `.claude/` is ignored.
   If nothing suitable is ignored, ask where to put it.
-- **Name:** after the branch or the action — `global-repetition-scheduled-time.md`. Tracing the same
-  thing again overwrites the file; that is the point, the old numbers are stale.
-- **Links are relative to the file itself**, so from `.claude/traces/` they start with `../../`.
-  Each footnote goes into a small file of its own in a folder beside the trace, and the trace has
-  no notes list at the end (see the marker rule below).
+- **Name:** after the branch or the action — `global-repetition-scheduled-time.html`. Tracing the
+  same thing again overwrites the file; that is the point, the old numbers are stale.
+- **Links are relative to the file itself**, so from `.claude/traces/` they start with `../../`, and
+  they open when the page is opened from that folder. Copying the page anywhere else — a desktop, a
+  ticket — means rewriting every one of them to an absolute `file://` path first, or the reader
+  clicks into nothing.
+- **One file, nothing beside it.** Styles and script are inline; the notes live in the page. Nothing
+  is fetched at load except a webfont, and the page has to be readable without one.
+
+Everything about *content* in this file is unchanged by the format: the same steps, the same dashed
+bullets, the same state labels. Drafting the text first and generating the page from it keeps the
+wording honest — the page is a rendering, not a rewrite. What the format buys is below.
+
+## What the page shows that prose cannot
+
+**The screens the action passes through, drawn at the top.** A reviewer who has not opened the
+feature does not know what a "card" or a "row" is here. Three or four small phone mockups in a row,
+in the order the person moves through them, answer that before the first step. Build them out of the
+app's real strings and the real order of the fields — read them out of the resource files, never
+invent copy — and pin numbered markers on the elements the steps talk about, so a marker on a mockup
+and a step number are the same number.
+
+**The one object the reader will stare at most, taken apart.** Usually the card or row the request
+ends up drawing: the same mockup again, with callouts naming which step decides each line of it.
+
+**A diagram only where a mechanism needs a number held in the head.** "The page came back with 19
+rows instead of 20, so paging stops" and "the twentieth row arrives on both pages" are the kind of
+thing a reader re-reads three times in prose and grasps at once as two rows of cells. Two or three
+such diagrams in a trace is plenty; past that they are decoration, and the ban on drawing the whole
+route still stands.
+
+**The state labels as chips, not words in a sentence.** New, unchanged, changed, meaning-moved,
+removed — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
+see at a glance how much of it is new.
+
+Keep the page plain: the step number in a circle, `File.kt:146` in monospace, steps grouped under a
+few headings that name the stage of the journey rather than the layer of the stack. It has to read
+at phone width and in a dark theme.
 
 ## What to trace when you are not told
 
@@ -71,7 +104,8 @@ When several distinct things happen inside one method, that is several entries, 
 ## Format
 
 The entry heading carries the number, the layer and the symbol. Underneath, dashed bullets, one
-fact per line.
+fact per line. That is the shape of the writing, whatever the page then makes of it — the number
+becomes a circle, the bullets a list with a coloured chip at the head of each:
 
 ```text
 ## N. Layer, `Class.Method()`
@@ -170,22 +204,21 @@ The test is simple: if searching the project will not find where it is defined, 
 The project's own names never do; the states below cover them.
 
 **The marker** is a Unicode superscript number directly after the name, at its first mention, and
-it is a link to that note's own file: `` `RuleFor`[¹⁶](post-scheduling/16-RuleFor.md) ``. Every note
-is written to a small file of its own, in a folder named after the trace — `.claude/traces/
-post-scheduling/16-RuleFor.md` — holding a heading with the number and the name, and the note.
-A click on the marker opens the note in its own tab, beside the trace. No link back to the trace:
-the Claude app's preview reopens a Markdown file from the top, and with a `#L` anchor as source text
-rather than the rendered page. Nor are the notes put under each step instead — a block of
-definitions after every entry buries the route it explains.
-The trace itself carries no list of notes at the end — the files are the notes. Not an in-page
-anchor: the Claude app's preview follows links to files but
-does not jump to `#id` anchors or `[^12]` footnotes, and shows no link titles on hover. Rewriting a
-trace rewrites its note folder — clear it first, the numbering has moved. Number in order of first
-appearance. A later mention far from the first may carry the same number again, so the reader does
-not have to scroll back to find it.
+it opens that note as a screen of its own: the trace is hidden, and the one note the reader asked
+for fills the page — not the whole glossary, which is a list to get lost in rather than an answer.
+Above it sits a back button naming where they came from ("Назад к шагу 15"), and `Esc` does the
+same. Returning restores the exact scroll position, captured when the marker was clicked; anything
+that recomputes the position from an anchor lands the reader somewhere near, which is worse than
+not moving at all. Notes are not put under each step instead — a block of definitions after every
+entry buries the route it explains.
 
-**Each note** — the text of its file, under a heading with its number and name in the reader's
-language — answers two questions, in this order:
+Hiding is the script's job, never the markup's: with no script the notes are an ordinary section at
+the end of the page and the markers are plain anchors to it, so the page degrades to something still
+readable. Number in order of first appearance. A later mention far from the first may carry the same
+number again, so the reader does not have to scroll back to find it.
+
+**Each note** — under a heading with its number and the name, in the reader's language — answers two
+questions, in this order:
 
 1. **What it is.** Its kind — method, class, attribute, setting, type, operator, language feature,
    column type, standard — and where it comes from, with that source's purpose in a few words: "a
@@ -356,8 +389,10 @@ called from where you said.
 
 ## What not to do
 
-**Do not draw it.** A sequence diagram of the same trace holds less, takes longer to read, and
-cannot be pasted into a ticket. Draw one only if asked separately.
+**Do not draw the route.** A sequence diagram of the whole trace holds less than the list and takes
+longer to read; draw one only if asked separately. This is not a ban on drawing: the mockups of the
+screens and the two or three diagrams of a counted mechanism are part of the page. What must not
+happen is the list being replaced by a picture of itself.
 
 **No preamble, no summary** — in the file or in the chat. Not "let us walk through this step by step", not "so the request
 crosses N layers". First entry, list, done.
@@ -384,9 +419,11 @@ fact each, so a count of bullets lands on the one they mean.
 A constructed example, not a real repository: a writer schedules a post and picks when it goes
 live. The client is Kotlin Multiplatform, the backend ASP.NET. The paths and line numbers are
 invented — the shape is what to copy, not the coordinates. The links are written as they would be
-in `.claude/traces/post-scheduling.md`, hence the `../../`, and the footnote markers point at the
-note files in `.claude/traces/post-scheduling/`. The stack is incidental too: the skill
-works with any language, and on another stack the notes explain that stack's libraries instead.
+in `.claude/traces/post-scheduling.html`, hence the `../../`, and a footnote marker points into the
+page itself, at the note it opens. The example is written as text because what it teaches is the
+writing; the page is how that text is rendered, and the section above says what the page adds. The
+stack is incidental too: the skill works with any language, and on another stack the notes explain
+that stack's libraries instead.
 
 Match its **density and register**: one fact per line, no preamble, no hedging. The library calls
 explained in it are real, and those explanations transfer as they are.
@@ -410,37 +447,37 @@ Path of the request when a post is published with a scheduled time.
 
 ## 2. Same component, the clock and the timer
 
-- **New in this branch.** `clock: Clock = Clock.System`[¹](post-scheduling/01-Clock.md), [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
-- **New in this branch.** `scheduledMoments`, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — the chosen instants mirrored into a kotlinx.coroutines[²](post-scheduling/02-kotlinx.coroutines.md) `Flow`[³](post-scheduling/03-Flow.md), a value the timer below can watch. The draft the screen holds is a plain field: moving the time from 20:00 to 21:00 changes it silently, and nothing downstream would learn of it.
-- **New in this branch.** `expireScheduleWhenItArrives()`, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](post-scheduling/04-flatMapLatest.md) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
+- **New in this branch.** `clock: Clock = Clock.System`[¹](#n1), [:88](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L88). A constructor parameter with a default, so existing call sites still compile and a test can hand in its own clock.
+- **New in this branch.** `scheduledMoments`, [:95](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L95) — the chosen instants mirrored into a kotlinx.coroutines[²](#n2) `Flow`[³](#n3), a value the timer below can watch. The draft the screen holds is a plain field: moving the time from 20:00 to 21:00 changes it silently, and nothing downstream would learn of it.
+- **New in this branch.** `expireScheduleWhenItArrives()`, [:130](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L130): one sleep armed at the chosen instant, re-armed through `flatMapLatest`[⁴](#n4) whenever the writer picks a different one. A fixed ticker would be late by up to its own interval.
 - **New in this branch.** `dropMomentsAlreadyGoneBy()`, [:151](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L151). Called from the timer and from the lifecycle's resume callback — a timer does not run while the app is backgrounded.
 
 ## 3. Same component, handling `PublishAtChanged`
 
 - **New in this branch.** The `PublishAtChanged` event, [ComposeScreenEvent.kt:34](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenEvent.kt#L34).
-- **New in this branch.** Handler at [ComposeScreenComponent.kt:198](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L198): `takeIf { it != null && it > clock.now() }`[⁵](post-scheduling/05-takeIf.md) — a past instant is never stored at all, or the field would show a time in the past for a frame.
+- **New in this branch.** Handler at [ComposeScreenComponent.kt:198](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L198): `takeIf { it != null && it > clock.now() }`[⁵](#n5) — a past instant is never stored at all, or the field would show a time in the past for a frame.
 - **New in this branch.** `PostDraft.publishAt`, [PostDraft.kt:22](../../app/src/commonMain/kotlin/com/example/posts/PostDraft.kt#L22); `null` means "as soon as it is sent".
 - **New in this branch.** `SavedDraft.publishAtEpochMillis`, [:402](../../app/src/commonMain/kotlin/com/example/compose/ComposeScreenComponent.kt#L402) — the choice survives process death, and a stale one is corrected on the next resume.
 
 ## 4. Client, `PostsRepositoryImpl.submitDraft()`
 
 - **Was there, changed.** One argument added, `publishAt`, so the writer's chosen time reaches the request body: [PostsRepositoryImpl.kt:141](../../app/src/commonMain/kotlin/com/example/posts/data/PostsRepositoryImpl.kt#L141).
-- **New in this branch.** `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](post-scheduling/06-kotlin.time.Instant.md) is ISO-8601[⁷](post-scheduling/07-ISO-8601.md) in UTC with a trailing `Z`, exactly the shape the server demands.
-- **New in this branch.** The field `publishAt: String? = null`, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](post-scheduling/08-encodeDefaults.md) in kotlinx.serialization[⁹](post-scheduling/09-kotlinx.serialization.md), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
+- **New in this branch.** `draft.publishAt?.toString()` — `kotlin.time.Instant.toString()`[⁶](#n6) is ISO-8601[⁷](#n7) in UTC with a trailing `Z`, exactly the shape the server demands.
+- **New in this branch.** The field `publishAt: String? = null`, [CreatePostRequest.kt:18](../../app/src/commonMain/kotlin/com/example/posts/data/dto/CreatePostRequest.kt#L18). The default is load-bearing: with `encodeDefaults = false`[⁸](#n8) in kotlinx.serialization[⁹](#n9), a property equal to its default is never handed to the serializer, so the key is absent rather than null.
 - **New in this branch.** Without `= null` the body would carry `"publish_at": null`, which is a different message even where a server happens to tolerate it.
 
 ## 5. `POST /api/posts`
 
-- **Was there, unchanged.** Mentioned because this is how the new 400 reaches the writer: Ktor[¹⁰](post-scheduling/10-Ktor.md) sends the request at [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), and `expectSuccess = true`[¹¹](post-scheduling/11-expectSuccess.md) turns any non-2xx answer, the new 400 included, into an exception the app shows as an error.
+- **Was there, unchanged.** Mentioned because this is how the new 400 reaches the writer: Ktor[¹⁰](#n10) sends the request at [PostsApiService.kt:44](../../app/src/commonMain/kotlin/com/example/posts/data/PostsApiService.kt#L44), and `expectSuccess = true`[¹¹](#n11) turns any non-2xx answer, the new 400 included, into an exception the app shows as an error.
 
 ## 6. Validator `CreatePostRequestValidator` → 400
 
-- **New in this branch.** The file, a FluentValidation[¹²](post-scheduling/12-FluentValidation.md) validator class; the rule sits at [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
-- **Was there, unchanged.** No code in the project calls it — ASP.NET Core[¹³](post-scheduling/13-ASP.NET-Core.md) does: `AddValidatorsFromAssemblyContaining`[¹⁴](post-scheduling/14-AddValidatorsFromAssemblyContaining.md) registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`[¹⁵](post-scheduling/15-AddFluentValidationAutoValidation.md) makes the framework run it on each request, before the controller's first line.
-- **New in this branch.** `RuleFor(x => x.PublishAt)`[¹⁶](post-scheduling/16-RuleFor.md) — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree[¹⁷](post-scheduling/17-Expression-tree.md) — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
-- **New in this branch.** `.Must(...)`[¹⁸](post-scheduling/18-Must.md) is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`[¹⁹](post-scheduling/19-Property-pattern.md) is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
-- **New in this branch.** `.WithMessage(...)`[²⁰](post-scheduling/20-WithMessage.md) states both the mistake and the accepted form instead of a generic "invalid request".
-- **Was there, unchanged.** On failure ModelState[²¹](post-scheduling/21-ModelState.md) is invalid and `[ApiController]`[²²](post-scheduling/22-note.md) returns the 400 with `ValidationProblemDetails`[²³](post-scheduling/23-ValidationProblemDetails.md) on its own.
+- **New in this branch.** The file, a FluentValidation[¹²](#n12) validator class; the rule sits at [CreatePostRequestValidator.cs:14](../../Application/Validators/CreatePostRequestValidator.cs#L14).
+- **Was there, unchanged.** No code in the project calls it — ASP.NET Core[¹³](#n13) does: `AddValidatorsFromAssemblyContaining`[¹⁴](#n14) registers it by scanning the assembly at startup, and `AddFluentValidationAutoValidation`[¹⁵](#n15) makes the framework run it on each request, before the controller's first line.
+- **New in this branch.** `RuleFor(x => x.PublishAt)`[¹⁶](#n16) — the checks chained after it apply to the `PublishAt` field. The compiler hands the library not the lambda's code but a description of it ("take `PublishAt` from `x`") — an expression tree[¹⁷](#n17) — so the library reads the field's name without running anything and names it in the 400 body, telling the client which field is wrong.
+- **New in this branch.** `.Must(...)`[¹⁸](#n18) is the predicate itself, `true` meaning valid. `is not { Kind: DateTimeKind.Unspecified }`[¹⁹](#n19) is a property pattern; it does not match on `null`, `is not` yields `true`, so a request without `publish_at` — the writer left the time on "now" — passes.
+- **New in this branch.** `.WithMessage(...)`[²⁰](#n20) states both the mistake and the accepted form instead of a generic "invalid request".
+- **Was there, unchanged.** On failure ModelState[²¹](#n21) is invalid and `[ApiController]`[²²](#n22) returns the 400 with `ValidationProblemDetails`[²³](#n23) on its own.
 
 ## 7. Controller `PostsController.Create`
 
@@ -456,9 +493,9 @@ Path of the request when a post is published with a scheduled time.
 ## 9. Same method, `PublishMomentUtc`
 
 - **New in this branch.** The method, [:121](../../Application/Services/PostService.cs#L121); the constant `PastInstantWorthReporting` at [:33](../../Application/Services/PostService.cs#L33).
-- **New in this branch.** `request.PublishAt is not { } requestedAt`[¹⁹](post-scheduling/19-Property-pattern.md) — a null check and a capture in one expression; no field, return "now".
-- **New in this branch.** `ToUniversalTime()`[²⁴](post-scheduling/24-ToUniversalTime.md) rather than `SpecifyKind`[²⁵](post-scheduling/25-SpecifyKind.md) — an offset such as `+05:00` arrives as `Kind = Local`[²⁶](post-scheduling/26-DateTimeKind.md) and names a different instant than its digits read; the column is a PostgreSQL[²⁷](post-scheduling/27-PostgreSQL.md) `timestamptz`[²⁸](post-scheduling/28-timestamptz.md) and rejects a non-UTC kind outright.
-- **New in this branch.** A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`[²⁹](post-scheduling/29-Log.Warning.md) from Serilog[³⁰](post-scheduling/30-Serilog.md) fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
+- **New in this branch.** `request.PublishAt is not { } requestedAt`[¹⁹](#n19) — a null check and a capture in one expression; no field, return "now".
+- **New in this branch.** `ToUniversalTime()`[²⁴](#n24) rather than `SpecifyKind`[²⁵](#n25) — an offset such as `+05:00` arrives as `Kind = Local`[²⁶](#n26) and names a different instant than its digits read; the column is a PostgreSQL[²⁷](#n27) `timestamptz`[²⁸](#n28) and rejects a non-UTC kind outright.
+- **New in this branch.** A past instant is replaced by "now": the writer meant "as early as possible", and refusing would only cost them the post. `Log.Warning`[²⁹](#n29) from Serilog[³⁰](#n30) fires only past a five-minute drift, because a clock a little behind is ordinary and a clock an hour behind is a client bug.
 
 ## 10. Same method, the quota check → 409
 
@@ -475,7 +512,7 @@ Path of the request when a post is published with a scheduled time.
 
 ## 12. Repository `PostRepository.CreateAsync`
 
-- **Removed in this branch.** The unique-violation catch from Npgsql[³¹](post-scheduling/31-Npgsql.md), so `CreateAsync` now always returns the saved row. Before, a second post for the same day hit the daily unique index, and the catch turned that into a null. The branch drops the index, and the only uniqueness left is the primary key on a freshly generated id, which cannot collide. Three more edits follow from this one: the return type narrows from nullable to non-nullable ([PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19)), the service's null check goes, and so does the Npgsql import, which served only the exception types in the catch.
+- **Removed in this branch.** The unique-violation catch from Npgsql[³¹](#n31), so `CreateAsync` now always returns the saved row. Before, a second post for the same day hit the daily unique index, and the catch turned that into a null. The branch drops the index, and the only uniqueness left is the primary key on a freshly generated id, which cannot collide. Three more edits follow from this one: the return type narrows from nullable to non-nullable ([PostRepository.cs:19](../../Infrastructure/Repositories/PostRepository.cs#L19)), the service's null check goes, and so does the Npgsql import, which served only the exception types in the catch.
 
 ## 13. Service `PostService.CreateAsync`, the change notification, then the 201
 
@@ -496,14 +533,13 @@ After the request:
 ## 16. Migration `DropDailyPostUniqueIndex`
 
 - **New in this branch.** [DropDailyPostUniqueIndex.cs:24](../../Infrastructure/Migrations/DropDailyPostUniqueIndex.cs#L24).
-- **New in this branch.** `DROP INDEX IF EXISTS`[³²](post-scheduling/32-DROP-INDEX-IF-EXISTS.md) as raw SQL rather than the `DropIndex`[³³](post-scheduling/33-DropIndex.md) of Entity Framework Core[³⁴](post-scheduling/34-Entity-Framework-Core.md) migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
-- **New in this branch.** `Down()`[³⁵](post-scheduling/35-Down.md) recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
+- **New in this branch.** `DROP INDEX IF EXISTS`[³²](#n32) as raw SQL rather than the `DropIndex`[³³](#n33) of Entity Framework Core[³⁴](#n34) migrations — this database was adopted at a squashed baseline, so the migration chain does not prove the index is there.
+- **New in this branch.** `Down()`[³⁵](#n35) recreates a unique index and will fail once an author has two posts on one day; the comment says so outright rather than letting a rollback discover it.
 
 ---
 
-The trace ends there. Below are the texts of its note files, one per file in
-`.claude/traces/post-scheduling/` — gathered here only to show them; the trace file holds none of
-them.
+The trace ends there. Below are its notes, each of which the page opens on a screen of its own when
+its marker is clicked; they are gathered in one list here only to show them.
 
 ## Notes
 
