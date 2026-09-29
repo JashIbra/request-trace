@@ -76,15 +76,14 @@ the page is dead. Give the path in the chat as well, for the reader who wants th
 
 ## What the page shows that prose cannot
 
-**The screens the action passes through, drawn at the top.** A reviewer who has not opened the
-feature does not know what a "card" or a "row" is here. Three or four small phone mockups in a row,
-in the order the person moves through them, answer that before the first step. Build them out of the
-app's real strings and the real order of the fields — read them out of the resource files, never
-invent copy — and pin numbered markers on the elements the steps talk about, so a marker on a mockup
-and a step number are the same number.
+**No strip of screens at the top.** It was tried and it does not work: the reader scrolls past it
+and never comes back, because a picture with no step beside it asks to be admired rather than read.
+A mockup earns its place only where it explains something, and that is next to the step it explains.
 
-**A fragment beside every step that touches the screen.** The strip at the top answers "where am
-I"; it does not answer "which of these five lines is this step about". So a step that decides
+**A fragment beside every step that touches the screen.** A reviewer who has not opened the feature
+does not know what a "card" or a "row" is here, and the answer belongs where the question arises, not
+in a gallery before the first step. Build the fragments out of the app's real strings and the real
+order of the fields — read them out of the resource files, never invent copy. So a step that decides
 something visible carries its own small picture next to its bullets — the one row, the one tag, the
 one control — and where the step is about a choice, the picture shows both outcomes side by side:
 the tag with a number and without it, the field closed and open, the card that opens and the card
@@ -446,7 +445,12 @@ screens and the two or three diagrams of a counted mechanism are part of the pag
 happen is the list being replaced by a picture of itself.
 
 **No preamble, no summary** — in the file or in the chat. Not "let us walk through this step by step", not "so the request
-crosses N layers". First entry, list, done.
+crosses N layers". First entry, list, done. **A page tempts you to break this**, because a web page
+is built with a big opening line and it feels unfinished without one; write it and you have written
+the banned sentence in a larger font. The page's head carries the name of the action, the branch, and
+the facts a reviewer will actually use — the request, the page size, the window something is kept
+for. Nothing that describes the document to its reader: how many steps it has, and what each of them
+will tell them, they can see for themselves.
 
 **Do not pull in files that are not on the path.** Neighbouring edits, documentation, tests are
 not steps.
