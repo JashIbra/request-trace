@@ -57,8 +57,23 @@ app's real strings and the real order of the fields — read them out of the res
 invent copy — and pin numbered markers on the elements the steps talk about, so a marker on a mockup
 and a step number are the same number.
 
+**A fragment beside every step that touches the screen.** The strip at the top answers "where am
+I"; it does not answer "which of these five lines is this step about". So a step that decides
+something visible carries its own small picture next to its bullets — the one row, the one tag, the
+one control — and where the step is about a choice, the picture shows both outcomes side by side:
+the tag with a number and without it, the field closed and open, the card that opens and the card
+that answers that it no longer keeps a page. That pair is the whole explanation; the bullets under
+it only say why. Six or so such fragments in a trace, one per step that draws something — a step
+that touches no pixel gets none.
+
 **The one object the reader will stare at most, taken apart.** Usually the card or row the request
 ends up drawing: the same mockup again, with callouts naming which step decides each line of it.
+
+**Every mockup is checked against what the code actually draws, not against memory of the design.**
+Open the composable and read the colour token, the order of the lines, the shape. Where the two
+disagree, that disagreement is a finding worth more than the picture: drawing a tag as a neutral
+chip because the design says so, while the code paints it with the brand accent, puts a lie in the
+trace and hides a bug. Say which one is wrong, fix the code if it is the code, and only then draw.
 
 **A diagram only where a mechanism needs a number held in the head.** "The page came back with 19
 rows instead of 20, so paging stops" and "the twentieth row arrives on both pages" are the kind of
