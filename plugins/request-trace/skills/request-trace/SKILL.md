@@ -227,10 +227,23 @@ where it shows up: not "`RuleFor` specifies the property" but "the checks after 
 body, so the client sees which field is wrong". If a term of art is unavoidable —
 an expression tree — explain it in the same line, in plain words.
 
-**Name what you mean, in every bullet.** "The field", "this value", "it" work only when the same
-bullet has already said which one. Each bullet is read on its own — the reader arrived at it from a
-link — so name the field, variable or case again: not "so a request without the field passes" but
-"so a request without `publish_at` — the writer left the time on 'now' — passes".
+**Name the thing. Never point at it.** This is absolute, with no case where pointing is allowed.
+"The same request", "that field", "this value", "such a screen", "it" — every one of them is the
+writer gesturing at something they can see and the reader cannot. The reader then stops reading and
+starts searching: what was the same as what? The answer may be three steps up, in another file, or
+only in the writer's head, and by the time they find it the sentence has been read twice and trusted
+once.
+
+So write the name, in full, every time it is meant — `assign-list`, `publish_at`, `PostDraft`,
+"the page's own request" — even when the name was written a line above, even when the repetition
+reads as clumsy. Clumsy costs a word. Pointing costs the paragraph. Not "the rows come from the same
+request the other tab uses" but "the rows come from `GET /api/task-students/assign-list`, the
+request the «Задать новое» tab also uses".
+
+The test, applied to every sentence before it is kept: **can this word be resolved without looking
+anywhere else?** If resolving it needs the previous bullet, the heading, another step, or knowing
+the code, it is the wrong word, and the fix is always the same — put the name there. Each bullet is
+read on its own; the reader often arrives at one from a link, with nothing above it on screen.
 
 ## Footnotes for everything the project did not write
 
