@@ -225,7 +225,10 @@ A bullet that only explains a consequence of the one above takes the state of th
 about. The labels are translated with the rest of the trace.
 
 - **New in this branch.** Break it down fully: what it does, why this way, what would happen without
-  it.
+  it. **Never a bare pointer.** "Declared at :412", "The request itself" say only where to look,
+  and this label has already promised a breakdown. Strike every identifier, path and link out of
+  the bullet: if nothing is left, say what that line does to the request instead, or fold it into
+  the bullet beside it.
 - **Was there, unchanged.** One short bullet that **opens with why it is in the trace** — what in
   the new behaviour depends on it, which refusal happens there, or that the route starts here — and
   then only as much mechanism as backs that up: "Mentioned because the reminder at the chosen time
