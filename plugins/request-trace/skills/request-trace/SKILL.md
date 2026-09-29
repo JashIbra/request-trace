@@ -27,6 +27,17 @@ What is never translated: symbol names, file paths, HTTP verbs, status codes, li
 `RuleFor`, `encodeDefaults`, `POST /api/...`, `409` stay exactly as the code spells them, whatever
 the surrounding prose is.
 
+**The prose itself is written in ordinary words, never in the trade's slang.** Developers borrow
+English words and bend them into their own language in chat, and those borrowings are not terms —
+they are shop-talk, and outside the shop they name something else entirely. In Russian «ручка» for
+an endpoint is what a door has; the sentence turns comic while claiming to be exact. Take the word
+from the reader's own dictionary instead: an endpoint is the address the app asks, a deploy is a
+release going out, a handler is the code that answers. Where the plain phrase is longer, it is still
+the right one — a trace is read by a reviewer, sometimes by someone who does not write this app's
+code at all. Before a sentence goes out, strike its unusual word and ask whether a person outside
+development would picture the right object; if they would picture a door handle, it is the wrong
+word.
+
 ## Write it to an HTML page
 
 The trace is long and is read beside the editor, a step at a time — so it goes into an `.html` file,
