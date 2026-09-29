@@ -27,16 +27,21 @@ What is never translated: symbol names, file paths, HTTP verbs, status codes, li
 `RuleFor`, `encodeDefaults`, `POST /api/...`, `409` stay exactly as the code spells them, whatever
 the surrounding prose is.
 
-**The prose itself is written in ordinary words, never in the trade's slang.** Developers borrow
-English words and bend them into their own language in chat, and those borrowings are not terms —
-they are shop-talk, and outside the shop they name something else entirely. In Russian «ручка» for
-an endpoint is what a door has; the sentence turns comic while claiming to be exact. Take the word
-from the reader's own dictionary instead: an endpoint is the address the app asks, a deploy is a
-release going out, a handler is the code that answers. Where the plain phrase is longer, it is still
-the right one — a trace is read by a reviewer, sometimes by someone who does not write this app's
-code at all. Before a sentence goes out, strike its unusual word and ask whether a person outside
-development would picture the right object; if they would picture a door handle, it is the wrong
-word.
+**Call each thing what speakers of the reader's language actually call it.** Not shop-talk bent out
+of English, and not a description invented on the spot either — both are ways of using a word nobody
+else uses. In Russian «ручка» for an endpoint is what a door has, and the sentence turns comic while
+claiming to be exact; but replacing it with «адрес, к которому обращается приложение» is no better,
+because that names the string, not the thing, and the reader has to work out which was meant.
+
+So the order is: look up what the thing is called in that language as it is spoken today, and use
+that. A borrowed word is fine when it is the established one — in Russian «эндпоинт» and «деплой»
+are words developers there genuinely use, while «ручка» and «залить» are chat between two people who
+already know what the other means. Where a plain native word exists and carries the whole meaning,
+it wins: what I meant above was simply «запрос».
+
+Check before the sentence goes out, not after. Strike the unusual word and ask what someone outside
+development would picture: if they picture a door handle, it is the wrong word, and if you cannot
+say where you got the word from, you invented it.
 
 ## Write it to an HTML page
 
