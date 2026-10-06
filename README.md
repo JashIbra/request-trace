@@ -1,14 +1,18 @@
 # request-trace
 
-Two Claude Code skills for reading unfamiliar code before you review it:
+Three Claude Code skills for reading unfamiliar code before you review it:
 
 - **`request-trace`** walks **one user action through the code** — from the tap in the client to the
   response, and on into whatever happens after it — and spells out the mechanics of every call along
   the way.
+- **`request-trace-ste`** is the same trace written in the style of ASD-STE100 (Simplified Technical
+  English), about 80% strict: short sentences, one idea each, active voice, present tense. It loads
+  `request-trace` and applies the style on top, so the two never drift apart. See
+  [Simple wording](#simple-wording-request-trace-ste).
 - **`explain-line`** explains **one line of that code by question and answer**: a one-sentence answer
   first, then only what you ask next. See [Going deeper](#going-deeper-explain-line).
 
-Both come in one plugin.
+All three come in one plugin.
 
 `request-trace` exists for code review. A list of changed files tells you where to look; it does not tell you
 what runs after what. This produces the route, and under each stop it answers, in advance, the
@@ -78,6 +82,21 @@ footnote is also written to its own small file beside the trace, and the marker 
 Both skills are written in English so they can be shared; what they produce follows the language the
 person asked in.
 
+## Simple wording: `request-trace-ste`
+
+```
+/request-trace-ste sending a chat message
+```
+
+The same trace, the same steps, the same page, the same links. Only the sentences change: about 20
+words at most, one idea each, the active voice, the present tense, one word for one thing and no
+figures of speech. It writes in the language you write in, and symbol names, paths and status codes
+stay as the code spells them.
+
+It is about 80% strict on purpose. A literal word-for-word result reads like a machine, so the word
+order stays natural and two very short sentences may be joined. The aim is clarity, not conformity to
+the standard's dictionary.
+
 ## Going deeper: `explain-line`
 
 The plugin ships a second skill for the moment a trace entry is not enough. It explains **one line
@@ -111,7 +130,7 @@ What it insists on:
 ```
 
 Or, without the plugin machinery, copy each skill's folder from `plugins/request-trace/skills/` into
-`~/.claude/skills/` — `request-trace/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
+`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
 install step — you just lose versioning and updates.
 
 ## Use
