@@ -54,3 +54,28 @@ variants. Do not ask which one the user wants.
   the no-preamble rule.
 - **Length follows the path.** There is no limit of thirty steps; a long path gets more steps, grouped
   under headings by stage. Do not pad: a step still has to be a place where something happens.
+
+## Before the page goes out: a junior reads it, a senior answers
+
+Every step is checked by two agents before the page is published. Do not skip this and do not do it
+yourself in your head — your own text always reads clear to you.
+
+1. **The junior.** Spawn an agent (Agent tool, general-purpose) that plays a junior: about half a year
+   of the language, new to this project and this platform, **with no access to the code** — it gets only
+   the text of the steps, rendered as plain text, and the step before them for context. Paste the text
+   into the prompt itself; never send a placeholder. It answers, per step: what it understood in its own
+   words, whether it sees why the step is in the walkthrough, and the questions it would ask, most
+   important first.
+2. **The senior.** Spawn a second agent that plays a senior mentor **with read access to the code**. It
+   gets the same steps and the junior's answer, checks every answer against the code, answers the
+   junior, and then says what in the text caused each question and rewrites the step so the question
+   would not arise. It also reports anything the code shows that the text got wrong or left out — a
+   missed writer of a field, a condition with no value, a real bug.
+3. **Apply and repeat.** Fix the steps from the senior's report — after checking its claims against the
+   code yourself, since it is a model too — and run the junior again on the changed steps. A step is done
+   when the junior can say what happens there and why the step is in the walkthrough, and its remaining
+   questions are about depth rather than meaning.
+
+Batch the steps, about six to eight per junior run, so a long walkthrough does not take one agent per
+step; send the batches in parallel. Bugs the senior finds in the code go into the chat for the user, not
+silently into the page.
