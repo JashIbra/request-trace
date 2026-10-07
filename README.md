@@ -1,6 +1,6 @@
 # request-trace
 
-Five Claude Code skills for reading unfamiliar code before you review it:
+Six Claude Code skills for reading unfamiliar code before you review it:
 
 - **`request-trace`** walks **one user action through the code** — from the tap in the client to the
   response, and on into whatever happens after it — and spells out the mechanics of every call along
@@ -11,10 +11,13 @@ Five Claude Code skills for reading unfamiliar code before you review it:
   [Simple wording](#simple-wording-request-trace-ste).
 - **`request-trace-short`** and **`request-trace-ste-short`** are the same two traces cut to about ten
   steps with one-sentence bullets, for the route at a glance. See [Short](#short-request-trace-short).
+- **`request-feature-trace`** walks a feature for someone new to it: every call after the button press,
+  changed or not, with each function, variable and command explained as a senior explains to a junior,
+  and the work the feature added marked along the way. See [Feature walkthrough](#feature-walkthrough-request-feature-trace).
 - **`explain-line`** explains **one line of that code by question and answer**: a one-sentence answer
   first, then only what you ask next. See [Going deeper](#going-deeper-explain-line).
 
-All five come in one plugin.
+All six come in one plugin.
 
 `request-trace` exists for code review. A list of changed files tells you where to look; it does not tell you
 what runs after what. This produces the route, and under each stop it answers, in advance, the
@@ -111,6 +114,17 @@ two or three screen fragments and up to ten notes. The rules that keep a trace h
 label on every bullet decided from git, a reason for every change, a checked file-and-line link on
 every step, exact numbers. The `-ste-` variant writes the short trace in the simple wording above.
 
+## Feature walkthrough: `request-feature-trace`
+
+```
+/request-feature-trace pressing "Enable kiosk mode"
+```
+
+Not a review aid but a lesson: the whole path after one button press, every function in the order it
+runs, every variable in it, every command it sends to another system shown as it is sent. It is written
+as a senior colleague explains to a junior — the real terms, each explained the first time. The page
+opens with a few lines on what the feature added, and the state chips still mark which parts are new.
+
 ## Going deeper: `explain-line`
 
 The plugin ships a second skill for the moment a trace entry is not enough. It explains **one line
@@ -144,7 +158,7 @@ What it insists on:
 ```
 
 Or, without the plugin machinery, copy each skill's folder from `plugins/request-trace/skills/` into
-`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md`, `request-trace-short/SKILL.md`, `request-trace-ste-short/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
+`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md`, `request-trace-short/SKILL.md`, `request-trace-ste-short/SKILL.md`, `request-feature-trace/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
 install step — you just lose versioning and updates.
 
 ## Use
