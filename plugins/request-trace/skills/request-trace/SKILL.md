@@ -62,10 +62,15 @@ not into the chat. The chat gets one line: the file's path.
   If nothing suitable is ignored, ask where to put it.
 - **Name:** after the branch or the action — `global-repetition-scheduled-time.html`. Tracing the
   same thing again overwrites the file; that is the point, the old numbers are stale.
-- **Links are relative to the file itself**, so from `.claude/traces/` they start with `../../`, and
-  they open when the page is opened from that folder. Copying the page anywhere else — a desktop, a
-  ticket — means rewriting every one of them to an absolute `file://` path first, or the reader
-  clicks into nothing.
+- **Links point at the code host, at the pushed commit.** The page is read as a published Artifact, and
+  there a relative `../../path` or a `file://` path resolves against the artifact's own site and
+  answers "not found". So every link is the repository's web URL for the file at the commit the trace
+  was written against, with the line anchor — on GitHub
+  `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<line>`, opening in a new tab. A full
+  commit hash, never a branch name: a branch moves, and the line numbers in the trace stop matching.
+  Take the owner and repository from `git remote get-url`, and check that the commit is on the remote
+  first (`git branch -r --contains <sha>`); if it is not, push it, or say that the links will not open
+  until it is.
 - **One file, nothing beside it.** Styles and script are inline; the notes live in the page. Nothing
   is fetched at load except a webfont, and the page has to be readable without one.
 
@@ -167,7 +172,8 @@ becomes a circle, the bullets a list with a coloured chip at the head of each:
   "Same method:" do not repeat it — it has not changed.
 - The symbol goes in backticks, **with the method**. A class name alone does not say where to look.
 - Write the network call as it is: `POST /api/posts`.
-- **File and line are required** — as a link, `[File.cs:124](../../path/File.cs#L124)`: the line in
+- **File and line are required** — as a link to the code host at the trace's commit (see "Links point
+  at the code host" above), `[File.cs:124](https://github.com/<owner>/<repo>/blob/<sha>/path/File.cs#L124)`: the line in
   the text, the `#L124` anchor in the target. A viewer that knows the anchor opens the file at that
   line, which is the whole point — the reader compares against the code instead of scrolling for
   it; one that does not still opens the file. Never `File.cs:124` as the target: outside a terminal
@@ -441,9 +447,9 @@ numbering and it will not match what the reader sees in the editor.
 up the file; names do not. The pair "name plus line" still works once the number has gone stale:
 the name finds it, the number lands on it directly.
 
-Two repositories in one trace: the file lives in one of them, and links into the other climb out of
-it — `../../../sibling-repo/...` from `.claude/traces/`. Before handing the file over, resolve every
-link against the file's folder and confirm the target exists and the line lands on the named
+Two repositories in one trace: each link uses its own repository's host URL and its own pushed
+commit. Before handing the file over, check every link against the commit it names (`git show
+<sha>:<path>`) and confirm the target exists and the line lands on the named
 symbol — **and that the line is not blank.** A number one or two past the declaration still points
 inside the file and still passes a file check, so proofreading by eye lets it through; the reader
 clicks and arrives at an empty line. Otherwise half the links will not open.
@@ -495,9 +501,9 @@ fact each, so a count of bullets lands on the one they mean.
 
 A constructed example, not a real repository: a writer schedules a post and picks when it goes
 live. The client is Kotlin Multiplatform, the backend ASP.NET. The paths and line numbers are
-invented — the shape is what to copy, not the coordinates. The links are written as they would be
-in `.claude/traces/post-scheduling.html`, hence the `../../`, and a footnote marker points into the
-page itself, at the note it opens. The example is written as text because what it teaches is the
+invented — the shape is what to copy, not the coordinates. The links are shortened to
+`../../path` here to keep the example readable; on the page each is the code host's URL at the
+trace's commit. A footnote marker points into the page itself, at the note it opens. The example is written as text because what it teaches is the
 writing; the page is how that text is rendered, and the section above says what the page adds. The
 stack is incidental too: the skill works with any language, and on another stack the notes explain
 that stack's libraries instead.
