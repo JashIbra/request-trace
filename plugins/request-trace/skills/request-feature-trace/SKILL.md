@@ -61,16 +61,20 @@ Every step is checked by two agents before the page is published. Do not skip th
 yourself in your head — your own text always reads clear to you.
 
 1. **The junior.** Spawn an agent (Agent tool, general-purpose) that plays a junior: about half a year
-   of the language, new to this project and this platform, **with no access to the code** — it gets only
-   the text of the steps, rendered as plain text, and the step before them for context. Paste the text
-   into the prompt itself; never send a placeholder. It answers, per step: what it understood in its own
-   words, whether it sees why the step is in the walkthrough, and the questions it would ask, most
-   important first.
-2. **The senior.** Spawn a second agent that plays a senior mentor **with read access to the code**. It
-   gets the same steps and the junior's answer, checks every answer against the code, answers the
-   junior, and then says what in the text caused each question and rewrites the step so the question
-   would not arise. It also reports anything the code shows that the text got wrong or left out — a
-   missed writer of a field, a condition with no value, a real bug.
+   of the language, new to this project and this platform. It **reads the code alongside the text** — it
+   can open every file and line the steps link to — but seeing the code is not understanding it: it does
+   not know the platform's corners, the project's conventions or why a line is there. It gets the text of
+   the steps pasted into its prompt (never a placeholder) and the step before them for context. Per step
+   it answers: what it understood, in its own words, from the text and the code together; whether it sees
+   why the step is in the walkthrough; and the questions it would ask, most important first — especially
+   where the text and the code seem to say different things, or where the code has something the text
+   does not explain.
+2. **The senior.** Spawn a second agent that plays a senior mentor sitting next to the junior over the
+   same code. It gets the same steps and the junior's answer, opens the lines the junior asked about, and
+   explains them — what the code does there and why, in the terms the junior needs. Then it says what in
+   the text caused each question and rewrites the step so the question would not arise. It also reports
+   anything the code shows that the text got wrong or left out — a missed writer of a field, a condition
+   with no value, a real bug.
 3. **Apply and repeat.** Fix the steps from the senior's report — after checking its claims against the
    code yourself, since it is a model too — and run the junior again on the changed steps. A step is done
    when the junior can say what happens there and why the step is in the walkthrough, and its remaining
