@@ -205,6 +205,14 @@ Always break down:
 
 Do not break down: a plain assignment, a getter call, the order of arguments.
 
+**Say what happens there, first, the way one person tells another.** The first words of a bullet
+are the event — what the code checks, decides, sends, waits for — in words a colleague would use
+across the desk: "Checks whether the device has a name; until it does, the activate button stays
+grey." Not where the thing sits ("the row stands last among the checks"), not what it looks like
+("the row is red"), not which symbol holds it. Position, colour and the exact copy come after the
+event, and only if the reader needs them. Test each bullet: read its first clause aloud to someone
+who has never seen the screen — if they cannot repeat what the code does, rewrite the bullet.
+
 **Write the picture, not the code in the reader's language.** Renaming the identifiers and declining
 them into a grammatical sentence teaches nothing — the reader can already read the line. Say what
 happens in words that would survive the code being rewritten: what is counted, what is compared with
