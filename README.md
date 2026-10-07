@@ -1,6 +1,6 @@
 # request-trace
 
-Three Claude Code skills for reading unfamiliar code before you review it:
+Five Claude Code skills for reading unfamiliar code before you review it:
 
 - **`request-trace`** walks **one user action through the code** — from the tap in the client to the
   response, and on into whatever happens after it — and spells out the mechanics of every call along
@@ -9,10 +9,12 @@ Three Claude Code skills for reading unfamiliar code before you review it:
   English), about 80% strict: short sentences, one idea each, active voice, present tense. It loads
   `request-trace` and applies the style on top, so the two never drift apart. See
   [Simple wording](#simple-wording-request-trace-ste).
+- **`request-trace-short`** and **`request-trace-ste-short`** are the same two traces cut to about ten
+  steps with one-sentence bullets, for the route at a glance. See [Short](#short-request-trace-short).
 - **`explain-line`** explains **one line of that code by question and answer**: a one-sentence answer
   first, then only what you ask next. See [Going deeper](#going-deeper-explain-line).
 
-All three come in one plugin.
+All five come in one plugin.
 
 `request-trace` exists for code review. A list of changed files tells you where to look; it does not tell you
 what runs after what. This produces the route, and under each stop it answers, in advance, the
@@ -97,6 +99,18 @@ It is about 80% strict on purpose. A literal word-for-word result reads like a m
 order stays natural and two very short sentences may be joined. The aim is clarity, not conformity to
 the standard's dictionary.
 
+## Short: `request-trace-short`
+
+```
+/request-trace-short sending a chat message
+/request-trace-ste-short sending a chat message
+```
+
+The same route, cut down: about ten steps (twelve at most), two to five one-sentence bullets each,
+two or three screen fragments and up to ten notes. The rules that keep a trace honest stay — a state
+label on every bullet decided from git, a reason for every change, a checked file-and-line link on
+every step, exact numbers. The `-ste-` variant writes the short trace in the simple wording above.
+
 ## Going deeper: `explain-line`
 
 The plugin ships a second skill for the moment a trace entry is not enough. It explains **one line
@@ -130,7 +144,7 @@ What it insists on:
 ```
 
 Or, without the plugin machinery, copy each skill's folder from `plugins/request-trace/skills/` into
-`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
+`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md`, `request-trace-short/SKILL.md`, `request-trace-ste-short/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
 install step — you just lose versioning and updates.
 
 ## Use
