@@ -213,6 +213,12 @@ grey." Not where the thing sits ("the row stands last among the checks"), not wh
 event, and only if the reader needs them. Test each bullet: read its first clause aloud to someone
 who has never seen the screen — if they cannot repeat what the code does, rewrite the bullet.
 
+**Explain a name where it first appears, not later.** The first time a function, field, constant,
+step or term of the trace — "the gate", a `pollJob`, a `GRANT_PERMISSIONS` step — is mentioned, the
+same sentence or the next one says what it is in plain words. A name that is explained only in the
+next bullet or the next step makes the reader stop and ask. Before handing the file over, walk the
+trace top to bottom and check every name at its first mention.
+
 **Write the picture, not the code in the reader's language.** Renaming the identifiers and declining
 them into a grammatical sentence teaches nothing — the reader can already read the line. Say what
 happens in words that would survive the code being rewritten: what is counted, what is compared with
