@@ -269,6 +269,12 @@ reads as clumsy. Clumsy costs a word. Pointing costs the paragraph. Not "the row
 request the other tab uses" but "the rows come from `GET /api/task-students/assign-list`, the
 request the «Задать новое» tab also uses".
 
+The rule has no exceptions by position: **step headings, captions under the screen fragments, the
+lines at the top of the page and the notes obey it too.** A heading such as "When the button is
+enabled" points at a button the reader has to guess; write "When the «Включить режим киоска» button
+is enabled". A screen element is always named by the label the screen shows — the button's text, the
+row's title, the screen's heading — never by its kind alone ("the button", "the row", "the sheet").
+
 The test, applied to every sentence before it is kept: **can this word be resolved without looking
 anywhere else?** If resolving it needs the previous bullet, the heading, another step, or knowing
 the code, it is the wrong word, and the fix is always the same — put the name there. Each bullet is
