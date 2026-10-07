@@ -34,6 +34,11 @@ variants. Do not ask which one the user wants.
 - **Each variable, parameter, field and constant in a step gets a line**: what it holds, where its
   value comes from, what reads it later. Skip only loop counters and values whose name and use need
   nothing more (`val result = shell(...)` checked on the next line).
+- **A field of a state object gets every place that writes it.** When a step reads a field of a screen's
+  state — `running`, `downloading`, `finished` — name each action that sets it and to what, with its
+  line: "`true` when the download starts (:238), `false` when it ends or fails (:256, :265, :272)". If
+  the state is an immutable data class updated through `copy(...)`, say so once, so the reader does not
+  take a `val` with a default for a constant.
 - **Commands sent to another system are shown as they are sent**, assembled from the code: the exact
   `adb shell pm grant com.app.tahfeez.kiosk android.permission.READ_CONTACTS` line, the exact HTTP
   request. Then say which part of the command comes from which variable.
