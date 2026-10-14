@@ -538,6 +538,14 @@ not steps.
 As many entries as there are places on the path. Usually ten to twenty. More than thirty means
 things that are not on the path have crept in.
 
+**When a shorter wording says the same, the shorter one stays.** Before handing the file over, read
+each bullet once more and ask whether a sentence can go without the reader losing a fact they would
+act on; if it can, it goes. A reviewer measures a bullet by what it told them, not by how much of
+the function it covered — "reads `dumpsys package` into permission → held, because `pm grant`
+answers success even after a revocation" beats three sentences on the regular expression. Detail
+is kept only where the shorter version would be wrong or unverifiable, never because the code has
+it.
+
 ## Going deeper into one entry
 
 The companion skill `explain-line` picks up where the trace stops: `/explain-line 7` drills into
