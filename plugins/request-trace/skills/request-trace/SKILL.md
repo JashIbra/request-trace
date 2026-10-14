@@ -359,7 +359,12 @@ about. The labels are translated with the rest of the trace.
   not have to work it out.
 - **Was there, changed.** Say what the diff did to it — a parameter added, a return type narrowed,
   a body rewritten — **and why**, in the same bullet: "non-nullable now, because the only path that
-  returned null was the unique-violation catch, and the index it caught is gone".
+  returned null was the unique-violation catch, and the index it caught is gone". **The first words
+  after the label are the change itself, with the thing that changed named** — the command, the
+  constant, the field: "`AUTO_REVOKE_PERMISSIONS_IF_UNUSED` is no longer sent at the end of the step".
+  Never open with what the area is ("the extra grants are the permissions the kiosk may need later…")
+  and reach the change in the last clause, or hide it behind "the second one", "that command": a
+  reader who finishes the bullet without being able to say what changed sends it back.
 - **Was there, refactored — behaves the same.** The diff touched it and the behaviour did not move:
   a block pulled into its own function, a result built one level up or down, a rename. Say in one
   sentence what moved where, and nothing about why the feature needed it, because the feature did
