@@ -120,8 +120,8 @@ thing a reader re-reads three times in prose and grasps at once as two rows of c
 such diagrams in a trace is plenty; past that they are decoration, and the ban on drawing the whole
 route still stands.
 
-**The state labels as chips, not words in a sentence.** New, unchanged, changed, meaning-moved,
-removed — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
+**The state labels as chips, not words in a sentence.** New, unchanged, changed, refactored,
+meaning-moved, removed — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
 see at a glance how much of it is new.
 
 Keep the page plain: the step number in a circle, `File.kt:146` in monospace, steps grouped under a
@@ -360,6 +360,12 @@ about. The labels are translated with the rest of the trace.
 - **Was there, changed.** Say what the diff did to it — a parameter added, a return type narrowed,
   a body rewritten — **and why**, in the same bullet: "non-nullable now, because the only path that
   returned null was the unique-violation catch, and the index it caught is gone".
+- **Was there, refactored — behaves the same.** The diff touched it and the behaviour did not move:
+  a block pulled into its own function, a result built one level up or down, a rename. Say in one
+  sentence what moved where, and nothing about why the feature needed it, because the feature did
+  not. The label exists so the reviewer does not read a reshuffle as a fix and go looking for the
+  bug it fixed; a reshuffle labelled "changed" sends them exactly there. Never use it for a change
+  that alters what the code does under any input — that is "changed", however small the diff.
 - **Was there, now means something else.** The dangerous one, and the strongest candidate for a
   line. The diff is tiny or absent while the meaning has moved, and that is what review misses most
   often. Say it plainly: what it meant before, what it means now, and what changed for everyone
@@ -367,14 +373,14 @@ about. The labels are translated with the rest of the trace.
 - **Removed in this branch.** What went, and why nothing needs it any more — the mechanism, in the
   same bullet: "the import served only the catch", not "went with the catch".
 
-Examples of the fourth kind: a column that kept its name but now records the day work is *placed*
+Examples of the fifth kind: a column that kept its name but now records the day work is *placed*
 on rather than the day it was handed out; a guard call that is byte-identical but now asks about a
 different day; a wire field that survives but always answers zero, kept only for app versions
 already in people's hands.
 
 **A change without its reason is half a bullet.** The reviewer reads the diff to see *what*
 changed; the trace is there for *why*. Every bullet marked changed, removed or now meaning something
-else says why in that same bullet — never in the next one, never implied by "along with", "went with
+else says why in that same bullet (a refactored bullet says what moved instead — it has no why) — never in the next one, never implied by "along with", "went with
 it", "together with". Those name a relation and hide its mechanism, exactly like a vague verb: say
 the link itself — "only the catch used this import", "the catch returned null, and it is gone, so
 the method never returns null". A reason the reader has to assemble from two bullets is a question
