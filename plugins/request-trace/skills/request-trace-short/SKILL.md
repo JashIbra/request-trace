@@ -23,7 +23,12 @@ variants. Do not ask which one the user wants.
   step only where the new behaviour depends on it. Merge neighbouring places in one class into one
   step when they serve one purpose; drop the rest instead of summarising them.
 - **Two to five bullets a step, one sentence each.** A bullet that needs a second sentence to stand up
-  says too much; keep the fact a reviewer acts on and drop the mechanism behind it.
+  says too much; keep the fact a reviewer acts on and drop the mechanism behind it. The sentence is
+  "the named thing — what it is for": a method and the problem it solves, a constant and the decision
+  its number encodes. What survives of the mechanism is the number a reviewer compares with the code
+  (5 rounds, 2 000 ms, "an unreadable dump does not block") in a clause, never a walk through the
+  body. A bullet that only narrates what a function does here and now, without the problem that made
+  someone write it, is worth less than the code and goes.
 - **Steps grouped under three or four stage headings**, not more.
 - **Two or three screen fragments in total**, only where a step changes what is drawn. No object taken
   apart with callouts, and no diagram unless the step cannot be understood without its number.

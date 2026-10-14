@@ -121,7 +121,7 @@ such diagrams in a trace is plenty; past that they are decoration, and the ban o
 route still stands.
 
 **The state labels as chips, not words in a sentence.** New, unchanged, changed, refactored,
-meaning-moved, removed, and the "Why" that follows a change — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
+meaning-moved, removed — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
 see at a glance how much of it is new.
 
 Keep the page plain: the step number in a circle, `File.kt:146` in monospace, steps grouped under a
@@ -390,23 +390,17 @@ on rather than the day it was handed out; a guard call that is byte-identical bu
 different day; a wire field that survives but always answers zero, kept only for app versions
 already in people's hands.
 
-**Every change — new, changed or removed — is followed by its own "Why" bullet.** The bullet with
-the state label says what is there or what changed, with the thing named; the next bullet, labelled
-**Why** (translated with the other labels), says what it is for in the reader's terms — what the
-user or operator gets, what would go wrong without it — not the mechanism again. One decision, one
-"Why": the new bullets of a step that serve one purpose get a single "Why" after the last of them,
-and a step whose purpose is the previous step's says so in one clause rather than repeating it. A
-new function described only by where it is called from and what it is given, with no line saying
-why it exists, is the first thing the reader sends back.
-
-**A state-labelled bullet is what, where and one clause of how; the "Why" bullet is the reason.**
-The reviewer reads the diff to see *what* changed and the trace for *why* — and the two live in
-different bullets, so neither is read twice. A bullet marked new, changed, removed or meaning-moved
-holds the thing, its symbol and line, and at most one clause of mechanism (a number, a construct,
-the edge case a line handles); history ("it used to…"), motive and consequence for the user go to
-the "Why" bullet that follows. A refactored bullet says what moved and has no "Why". Where a
-removal's reason is a mechanism — "only the catch used this import" — that one clause stays in the
-bullet; never "along with", "went with it", "together with", which name a relation and hide it.
+**Every bullet names the thing and says what it is for, in one sentence.** The thing first — the
+function, the list, the command, with its line — then a dash and the problem it exists to solve, in
+the reader's terms: "Added `regrantPermissionsTakenBack()` (:773) — the panel re-reads what the
+tablet actually holds and grants again what it took back after `pm grant`". A reviewer who finishes
+the bullet knowing what the line does but not why it was written sends it back; so does one who
+gets the motive without the named thing. There is no separate "why" bullet: a purpose stated apart
+from its line reads as belonging to nothing. When several bullets of one step serve one purpose,
+the first carries it and the rest say only what they add. History ("it used to…") is one clause,
+and only where the old behaviour is what the reviewer must compare against. A refactored bullet
+says what moved and has no purpose to give. Never "along with", "went with it", "together with" —
+they name a relation and hide it.
 
 **One decision, one bullet.** When several edits in the diff follow from one decision — an index
 dropped, so the catch that guarded it goes, so the method can no longer return null, so its import
