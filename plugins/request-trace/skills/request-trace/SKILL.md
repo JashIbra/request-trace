@@ -402,6 +402,14 @@ and only where the old behaviour is what the reviewer must compare against. A re
 says what moved and has no purpose to give. Never "along with", "went with it", "together with" —
 they name a relation and hide it.
 
+**A step about a new function opens with the problem the function was written for**, before any
+line of it: "`pm grant` answers success even when the tablet has already taken the permission back,
+and nothing else tells the panel the truth — so `parseGrantedPermissions()` reads `dumpsys package`
+into a table of permission → held". A function's branches and edge cases are not one bullet each:
+only the ones a reviewer must check get a bullet, and each says what it protects against ("not read
+as taken back, so the panel does not re-grant in vain"), not what the condition tests. Three bullets
+that walk a seven-line function branch by branch are the trace repeating the code.
+
 **One decision, one bullet.** When several edits in the diff follow from one decision — an index
 dropped, so the catch that guarded it goes, so the method can no longer return null, so its import
 and the caller's null check go too — they are one bullet, under the label of the edit that started
