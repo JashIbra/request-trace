@@ -200,8 +200,10 @@ Always break down:
 3. **A choice between two obvious options.** Where the code could have gone the simpler way and
    did not — name both and the reason. `ToUniversalTime` rather than `SpecifyKind`. The undo
    record written before the move, not after.
-4. **What breaks without this line.** That is why the line is there, and it is what the reviewer
-   is checking.
+4. **What breaks without this line — at the level of the line.** The number, the construct, the
+   edge case it handles: "a read taken at once would come before the revocation it looks for, hence
+   the 2 000 ms pause". The purpose of the change as a whole, what the user gets, what the old
+   behaviour was — none of that is in a state-labelled bullet; it is the "Why" bullet's.
 
 Do not break down: a plain assignment, a getter call, the order of arguments.
 
@@ -397,13 +399,14 @@ and a step whose purpose is the previous step's says so in one clause rather tha
 new function described only by where it is called from and what it is given, with no line saying
 why it exists, is the first thing the reader sends back.
 
-**A change without its reason is half a bullet.** The reviewer reads the diff to see *what*
-changed; the trace is there for *why*. Every bullet marked changed, removed or now meaning something
-else says why in that same bullet (a refactored bullet says what moved instead — it has no why) — never in the next one, never implied by "along with", "went with
-it", "together with". Those name a relation and hide its mechanism, exactly like a vague verb: say
-the link itself — "only the catch used this import", "the catch returned null, and it is gone, so
-the method never returns null". A reason the reader has to assemble from two bullets is a question
-they will send you.
+**A state-labelled bullet is what, where and one clause of how; the "Why" bullet is the reason.**
+The reviewer reads the diff to see *what* changed and the trace for *why* — and the two live in
+different bullets, so neither is read twice. A bullet marked new, changed, removed or meaning-moved
+holds the thing, its symbol and line, and at most one clause of mechanism (a number, a construct,
+the edge case a line handles); history ("it used to…"), motive and consequence for the user go to
+the "Why" bullet that follows. A refactored bullet says what moved and has no "Why". Where a
+removal's reason is a mechanism — "only the catch used this import" — that one clause stays in the
+bullet; never "along with", "went with it", "together with", which name a relation and hide it.
 
 **One decision, one bullet.** When several edits in the diff follow from one decision — an index
 dropped, so the catch that guarded it goes, so the method can no longer return null, so its import
