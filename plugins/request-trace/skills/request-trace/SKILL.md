@@ -388,12 +388,14 @@ on rather than the day it was handed out; a guard call that is byte-identical bu
 different day; a wire field that survives but always answers zero, kept only for app versions
 already in people's hands.
 
-**A changed or removed bullet is followed by its own "Why" bullet.** The change bullet says what
-changed, with the thing named; the next bullet, labelled **Why** (translated with the other labels),
-says what the change is for in the reader's terms — what the user or operator gets, what would go
-wrong without it — not the mechanism again. One decision, one pair: a change whose purpose is the
-same as the previous change's shares its "Why" by saying so in one clause rather than repeating it.
-A change bullet followed by no "Why" is what the reader sends back first.
+**Every change — new, changed or removed — is followed by its own "Why" bullet.** The bullet with
+the state label says what is there or what changed, with the thing named; the next bullet, labelled
+**Why** (translated with the other labels), says what it is for in the reader's terms — what the
+user or operator gets, what would go wrong without it — not the mechanism again. One decision, one
+"Why": the new bullets of a step that serve one purpose get a single "Why" after the last of them,
+and a step whose purpose is the previous step's says so in one clause rather than repeating it. A
+new function described only by where it is called from and what it is given, with no line saying
+why it exists, is the first thing the reader sends back.
 
 **A change without its reason is half a bullet.** The reviewer reads the diff to see *what*
 changed; the trace is there for *why*. Every bullet marked changed, removed or now meaning something
