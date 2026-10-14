@@ -121,7 +121,7 @@ such diagrams in a trace is plenty; past that they are decoration, and the ban o
 route still stands.
 
 **The state labels as chips, not words in a sentence.** New, unchanged, changed, refactored,
-meaning-moved, removed — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
+meaning-moved, removed, and the "Why" that follows a change — a colour and a short word at the head of each bullet, so the reviewer can scan a step and
 see at a glance how much of it is new.
 
 Keep the page plain: the step number in a circle, `File.kt:146` in monospace, steps grouped under a
@@ -382,6 +382,13 @@ Examples of the fifth kind: a column that kept its name but now records the day 
 on rather than the day it was handed out; a guard call that is byte-identical but now asks about a
 different day; a wire field that survives but always answers zero, kept only for app versions
 already in people's hands.
+
+**A changed or removed bullet is followed by its own "Why" bullet.** The change bullet says what
+changed, with the thing named; the next bullet, labelled **Why** (translated with the other labels),
+says what the change is for in the reader's terms — what the user or operator gets, what would go
+wrong without it — not the mechanism again. One decision, one pair: a change whose purpose is the
+same as the previous change's shares its "Why" by saying so in one clause rather than repeating it.
+A change bullet followed by no "Why" is what the reader sends back first.
 
 **A change without its reason is half a bullet.** The reviewer reads the diff to see *what*
 changed; the trace is there for *why*. Every bullet marked changed, removed or now meaning something
