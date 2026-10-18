@@ -150,24 +150,15 @@ What it insists on:
   serializer's converters, a framework default.
 - **No headers, no footnotes, no "want me to go deeper?"** — the next question is yours.
 
-## Voice mode: `voice`
-
-A separate plugin in the same marketplace. `/voice` turns it on: from then on every answer is one or two
-sentences and is spoken aloud at once through the Mac's speakers with the macOS `say` command — no audio
-file, nothing to tap. The spoken copy is plain words only: code, paths and symbol names stay in the written
-reply. «без голоса» (or "stop voice") turns it off, «стоп» cuts the current answer short. macOS only; the
-sound plays on the machine the session runs on.
-
 ## Install
 
 ```
 /plugin marketplace add JashIbra/request-trace
 /plugin install request-trace@request-trace-marketplace
-/plugin install voice@request-trace-marketplace
 ```
 
 Or, without the plugin machinery, copy each skill's folder from `plugins/request-trace/skills/` into
-`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md`, `request-trace-short/SKILL.md`, `request-trace-ste-short/SKILL.md`, `request-feature-trace/SKILL.md` and `explain-line/SKILL.md`, and `voice/SKILL.md` from `plugins/voice/skills/`. Personal skills are picked up at session start, with no
+`~/.claude/skills/` — `request-trace/SKILL.md`, `request-trace-ste/SKILL.md`, `request-trace-short/SKILL.md`, `request-trace-ste-short/SKILL.md`, `request-feature-trace/SKILL.md` and `explain-line/SKILL.md`. Personal skills are picked up at session start, with no
 install step — you just lose versioning and updates.
 
 ## Use

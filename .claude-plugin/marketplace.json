@@ -10,16 +10,10 @@
       "source": "./plugins/request-trace",
       "description": "Numbered walk of one user action through the code, with the mechanics of each call spelled out — a review aid — plus a drill-down that explains any line of it one question at a time.",
       "version": "1.1.0"
-    },
-    {
-      "name": "voice",
-      "source": "./plugins/voice",
-      "description": "Voice mode: every answer kept short and spoken aloud at once through the Mac's speakers (macOS say).",
-      "version": "1.0.0"
     }
   ],
   "metadata": {
-    "description": "Skills for reading unfamiliar code before you review it, and a voice mode for asking about it hands-free.",
+    "description": "Skills for reading unfamiliar code before you review it.",
     "version": "1.1.0"
   }
 }
