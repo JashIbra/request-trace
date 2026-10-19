@@ -8,11 +8,17 @@
   },
   "homepage": "https://github.com/JashIbra/request-trace",
   "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "claude-skills",
     "code-review",
-    "onboarding",
-    "documentation",
+    "ai-code-review",
+    "code-walkthrough",
+    "call-chain",
     "call-graph",
-    "walkthrough",
-    "explain-code"
+    "request-flow",
+    "onboarding",
+    "explain-code",
+    "documentation"
   ]
 }

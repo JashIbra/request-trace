@@ -1,6 +1,8 @@
-# request-trace
+# request-trace — code walkthrough and call-chain skills for Claude Code
 
-Six Claude Code skills for reading unfamiliar code before you review it:
+Claude Code skills (a plugin) for AI-assisted code review and onboarding: they trace one user action through the
+codebase — the request flow and call chain from the button press to the server's response — and explain every
+step, any line and any library call along the way. Works with any language and stack. The six skills:
 
 - **`request-trace`** walks **one user action through the code** — from the tap in the client to the
   response, and on into whatever happens after it — and spells out the mechanics of every call along
@@ -59,10 +61,11 @@ scrolling for it. Every name the project did not write carries a small superscri
 a note that says what kind of thing it is, where it comes from and why that source exists, and what it
 does — each note readable on its own. The note opens as a small file in its own tab, beside the trace.
 
-The trace goes into a Markdown file, not the chat — `.claude/traces/<branch>.md` when `.claude/` is
-git-ignored — so it never shows up in the diff and reads comfortably next to the editor. The chat
-gets only the file's path. Links are relative to that file, with the line as a `#L124` anchor. Each
-footnote is also written to its own small file beside the trace, and the marker links there.
+The trace goes into a single HTML page, not the chat — `.claude/traces/<branch>.html` when `.claude/` is
+git-ignored — so it never shows up in the diff and reads comfortably next to the editor; in the Claude app it
+opens as an Artifact beside the conversation. The chat gets only the file's path. Links point at the code host
+at the pushed commit, with the line as a `#L124` anchor, and each footnote opens as its own screen inside the
+page.
 
 ## What it insists on
 

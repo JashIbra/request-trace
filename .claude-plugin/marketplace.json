@@ -13,7 +13,7 @@
     }
   ],
   "metadata": {
-    "description": "Skills for reading unfamiliar code before you review it.",
+    "description": "Claude Code skills for AI-assisted code review: trace one user action through the code, step by step, and explain any line of it.",
     "version": "1.1.0"
   }
 }
