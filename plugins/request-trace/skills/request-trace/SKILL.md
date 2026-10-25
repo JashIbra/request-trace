@@ -71,6 +71,10 @@ not into the chat. The chat gets one line: the file's path.
   Take the owner and repository from `git remote get-url`, and check that the commit is on the remote
   first (`git branch -r --contains <sha>`); if it is not, push it, or say that the links will not open
   until it is.
+- **The page opens on a phone as a phone page.** Its first lines are `<meta charset="utf-8">` and
+  `<meta name="viewport" content="width=device-width, initial-scale=1">`. The Artifact adds both when it
+  publishes, but a copy opened as a file — from the Desktop, from a messenger — has only what the file
+  says, and without the viewport line a phone draws it as a shrunken desktop page.
 - **One file, nothing beside it.** Styles and script are inline; the notes live in the page. Nothing
   is fetched at load except a webfont, and the page has to be readable without one.
 
