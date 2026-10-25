@@ -302,9 +302,12 @@ that recomputes the position from an anchor lands the reader somewhere near, whi
 not moving at all. Notes are not put under each step instead — a block of definitions after every
 entry buries the route it explains.
 
-Hiding is the script's job, never the markup's: with no script the notes are an ordinary section at
-the end of the page and the markers are plain anchors to it, so the page degrades to something still
-readable. Number in order of first appearance. A later mention far from the first may carry the same
+**No list of notes at the bottom of the page.** With the script running, the notes section is hidden
+while the reader is on the trace, and a note appears only on its own screen, opened from its marker:
+the reader reaches every note from the step that cites it, so a glossary after the last step only
+repeats them. Hiding is the script's job, never the markup's: with no script the notes are an
+ordinary section at the end of the page and the markers are plain anchors to it, so the page degrades
+to something still readable. Number in order of first appearance. A later mention far from the first may carry the same
 number again, so the reader does not have to scroll back to find it.
 
 **Each note** — under a heading with its number and the name, in the reader's language — answers two
